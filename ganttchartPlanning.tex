@@ -8,9 +8,9 @@
 		time slot format=simple,
 		Mile1/.style={milestone/.append style={fill=red}},
 		Mile2/.style={milestone/.append style={fill=blue,shape=rectangle}}
-		]{1}{200}
+		]{1}{201}
 		
-		\gantttitle{2020-2021}{200}\\
+		\gantttitle{2020-2021}{201}\\
 		\gantttitle{September}{20}
 		\gantttitle{October}{20}
 		\gantttitle{November}{20}
@@ -20,16 +20,16 @@
 		\gantttitle{Maart}{20}
 		\gantttitle{April}{20}
 		\gantttitle{Mei}{20}
-		\gantttitle{Juni}{20}\\
+		\gantttitle{Juni}{21}\\
 
 		
-		\ganttgroup[group/.append style={draw=black}]{Ontwerpen}{15}{48} \\
-		\ganttbar{Oriëntatie}{21}{35}\\ %takenverdeling, kostenraming,plannen,...
-		\ganttbar{3D-model}{21}{42} \\
-		\ganttbar{Software}{21}{48} \\
+		\ganttgroup[group/.append style={draw=black}]{Ontwerpen}{15}{170} \\
+		\ganttbar{ADD using spatial focus}{20}{80}\\
+		\ganttbar{ADD using stimulus reconstruction}{70}{120} \\
+		\ganttbar{Graphical User Interface}{120}{170} \\
 		
 		\ganttgroup[group/.append style={fill=red, draw = red}]{Uitvoeren}{48}{91} \\
-		\ganttbar[bar/.append style={draw=red}]{Software}{48}{91} \\
+		\ganttmilestone[Mile1]{Meetnamiddag}{70} \\
 		\ganttbar[bar/.append style={draw=red}]{Assemblage}{48}{70} \\
 		
 		\ganttgroup[group/.append style={fill=cyan!50, draw = cyan!50}]{Rapportering}{14}{94} \\
@@ -39,7 +39,7 @@
 		\ganttbar[bar/.append style={draw=cyan!50}]{Eind Verslag}{63}{91} 
 		\ganttmilestone[Mile1]{}{92}\\ %eindverslag
 		
-		\ganttgroup[group/.append style={fill=gray!50, draw = gray!}]{Presentatie}{84}{105} \\
+		\ganttgroup[group/.append style={fill=gray!50, draw = gray!}]{Presentatie}{170}{200} \\
 		\ganttmilestone[Mile1]{}{105} %demo
 		\ganttbar[bar/.append style={draw=gray}]{Demonstratie}{84}{104} \\
 		\ganttmilestone[Mile1]{}{105} %Presentatie
