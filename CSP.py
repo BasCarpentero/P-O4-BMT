@@ -52,13 +52,12 @@ def CSP(class_covariances):
     descending_eigenvalues = ascending_eigenvalues[::-1]
     eigenvalues = eigenvalues[descending_eigenvalues]
     eigenvectors = eigenvectors[:, descending_eigenvalues]
-    print(eigenvalues)
-    print(eigenvectors.shape)
-    return [eigenvectors[:, 0], eigenvectors][:, -1]
+    return eigenvectors
+
 
 if __name__ == "__main__":
 
-    data = loadmat('/Users/ogppr/Downloads/dataSubject8')
+    data = loadmat('dataSubject8.mat')
     wrapped_attended_ear = np.array(data.get('attendedEar'))
     attended_ear = unwrap_cell_data(wrapped_attended_ear)
     wrapped_EEG_data = np.array(data.get('eegTrials'))
