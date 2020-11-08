@@ -1,0 +1,25 @@
+import numpy as np
+
+def createFeature(W,x,T):
+    #@param: x is a C x A matrix with C = #channels and A = #time instances
+    #@param: W is a C x K matrix with C = #channels and K = # spatial filters
+    #@param T: number of time samples in the decision window
+    y = np.dot(W.T, x) # K x A matrix
+    outputEnergy = np.zeros(len(y))
+    for j in range(0,T):
+        for i in range(0,len(y)):
+            outputEnergy[i] += (y[i][j])**2
+    f = np.log(outputEnergy)
+    return f
+#_______________________________________________________
+#TEST:
+
+import scipy.io
+data = scipy.io.loadmat('dataSubject8.mat')
+x = np.array(data.get('eegTrials'))
+x_0 = x[36][0].T
+print(np.shape(x_0[:3,30:]))
+W = np.array([[1,0,0],[ 0,1,0], [0,0,1]])
+T = 7170
+f = createFeature(W, x_0[:3,30:], T)
+print(f)
