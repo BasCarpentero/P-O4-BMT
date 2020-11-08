@@ -11,8 +11,7 @@ def createFeature(y, T):
     for j in range(T):
         for i in range(0, len(y)):
             outputEnergy[i] += (y[i][j])**2
-    f = np.log(outputEnergy)
-    return f
+    return np.log(outputEnergy)  # f
 
 
 if __name__ == "__main__":
@@ -27,9 +26,11 @@ if __name__ == "__main__":
     W = CSP.CSP(class_covariances)
 
     wrapped_x = np.array(data.get('eegTrials'))
-    x = wrapped_x[36][0].T
-    y = np.dot(W.T, x)
-
-    T = 7170
-    f = createFeature(y, T)
+    begin, end = 0, 36
+    f = [0]*(end-begin)
+    for i in range(begin, end):
+        x = wrapped_x[i][0].T
+        y = np.dot(W.T, x)
+        T = 7170
+        f[i] = createFeature(y, T)
     print(f)
