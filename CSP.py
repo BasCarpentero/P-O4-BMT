@@ -66,4 +66,4 @@ if __name__ == "__main__":
 
     grouped_data = group_by_class(EEG_data, attended_ear)
     class_covariances = spatial_covariance_matrices(grouped_data)
-    CSP(class_covariances)
+    test_W = CSP(class_covariances)
