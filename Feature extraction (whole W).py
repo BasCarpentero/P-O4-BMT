@@ -3,9 +3,6 @@ import numpy as np
 from scipy.io import loadmat
 import CSP
 
-import CSP
-
-
 def get_y(x, W):
     return np.dot(W.T, x)
 
@@ -14,7 +11,6 @@ def createFeature(y, T):
     #@param: x is a C x A matrix with C = #channels and A = #time instances
     #@param: W is a C x K matrix with C = #channels and K = # spatial filters
     #@param T: number of time samples in the decision window
-    # y = np.dot(W.T, x) # K x A matrix
     outputEnergy = np.zeros(len(y))
     for j in range(T):
         for i in range(0, len(y)):
