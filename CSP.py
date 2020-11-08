@@ -54,7 +54,7 @@ def CSP(class_covariances):
     eigenvectors = eigenvectors[:, descending_eigenvalues]
     print(eigenvalues)
     print(eigenvectors.shape)
-
+    return [eigenvectors[:, 0], eigenvectors][:, -1]
 
 if __name__ == "__main__":
 
