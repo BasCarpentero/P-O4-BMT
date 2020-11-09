@@ -1,114 +1,96 @@
-import numpy as np
-import pandas as pd
-import random
-import sys, itertools
-import matplotlib.pyplot as plt
-import scipy.stats
-from scipy.io import loadmat
 import CSP
 import FeatureExtraction
+import numpy as np
+from scipy.io import loadmat
+
+# class 1: LEFT
+# class 2: RIGHT
 
 
-def get_data():
-    # import feature vectors and attended speakers
-    # features will be formatted as column vectors with n rows for n dimensions
+def get_f(begin, end, W, x):
+    f = []
+    for i in range(begin, end):
+        xi = x[i][0].T
+        y = np.dot(W.T, xi)
+        T = 7190
+        f.append(FeatureExtraction.createFeature(y, T))
+    return np.array(f)
+
+
+def group_by_class(f, classes):
+    class_one = []
+    class_two = []
+    for x in classes:
+        if x == 1:
+            class_one.append(np.transpose(f[x]))
+        else:
+            class_two.append(np.transpose(f[x]))
+    return np.array([class_one, class_two])
+
+
+def get_covariance_matrix(data):
+    x = np.vstack(data.transpose())
+    covMatrix = np.cov(x)
+    return np.linalg.inv(covMatrix)
+
+
+def get_mean(data):
+    data = np.transpose(data)
+    mean = []
+    for i in range(np.shape(data)[0]):
+        mean_x = sum(data[i])/len(data[i])
+        mean.append(mean_x)
+    return mean
+
+
+def get_vt_b(inv_cov_mat, m1, m2):
+    diff_mean = [0] * len(m1)
+    sum_mean = [0] * len(m1)
+    for i in range(len(m1)):
+        diff_mean[i] = m2[i] - m1[i]
+        sum_mean[i] = m2[i] + m1[i]
+    v = np.dot(inv_cov_mat, diff_mean)
+    v_t = v.transpose()
+    b = -0.5 * np.dot(v_t, sum_mean)
+    return v_t, b
+
+
+def get_D(v_t, b, f):
+    return np.dot(v_t, f) + b
+
+
+def classify(D):
+    if D > 0:
+        return 1
+    else:
+        return 2
+
+
+if __name__ == "__main__":
+    begin, end = 0, 36  # minutes
     data = loadmat('dataSubject8.mat')
-    wrapped_attended_ear = np.array(data.get('attendedEar'))[:36]
-    attended_ear = CSP.unwrap_cell_data(wrapped_attended_ear)
-    wrapped_EEG_data = np.array(data.get('eegTrials'))[:36]
-    EEG_data = CSP.unwrap_cell_data(wrapped_EEG_data)
+    wrapped_attended_ear = np.array(data.get('attendedEar'))
+    attended_ear = CSP.unwrap_cell_data(wrapped_attended_ear)[:36]
+    wrapped_EEG_data = np.array(data.get('eegTrials'))
+    EEG_data = CSP.unwrap_cell_data(wrapped_EEG_data)[begin:end]
 
     grouped_data = CSP.group_by_class(EEG_data, attended_ear)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
     W = CSP.CSP(class_covariances)
+    print(W.shape)
 
     wrapped_x = np.array(data.get('eegTrials'))
-    x = wrapped_x[36][0].T
-    y = np.dot(W.T, x)
-
-    t = 7170
-    return FeatureExtraction.createFeature(y, t)  # f
-
-
-# This class transform a given ... of feature vectors to one single dimension, minimizing the class variances and
-# maximizing the distance between classes through their means.
-class Fischer_linear_discriminant:
-    def __init__(self, data, dimension):
-        self.data = data # Data is given as a list of feature vectors
-        self.dimension = dimension # The dimension of the feature vector
-        self.dimension = len(self.data[0]) - 1
-        self.set_group()
-        self.calculate_means()
-        self.calculate_covariances()
-        self.calculate_eigenvalues()
-        self.transform()
-        self.get_classes()
-
-    # Step 1: Group the features vectors into their classes (speaker 1 or speaker 2).
-    def set_group(self):
-        class_one = []
-        class_two = []
-        classes = Fischer_linear_discriminant.get_classes()
-        for x in classes:
-            if x == 1:
-                class_one.append(np.transpose(self.data[x]))
-            else:
-                class_two.append(np.transpose(self.data[x]))
-        self.grouped_features = np.array([class_one, class_two])
-
-    def get_classes(self):
-        data = loadmat('dataSubject8.mat')
-        wrapped_attended_ear = np.array(data.get('attendedEar'))[:36]
-        attended_ear = CSP.unwrap_cell_data(wrapped_attended_ear)
-        return attended_ear
-
-    # Step 2: Calculate the overall mean and per class means.
-    def calculate_means(self):
-        self.class_mean = {}
-        self.overall_mean = np.array([0. for x in range(self.dimension)])
-        for i in self.grouped_features:
-            self.class_mean[i] = np.array([0. for x in range(self.dimension)])
-            for j in self.grouped_features[i]:
-                for k in range(len(j)):
-                    self.class_mean[i][k] += j[k]
-                    self.overall_mean[k] += j[k]
-
-        for i in self.class_mean:
-            for j in range(len(self.class_mean[i])):
-                self.class_mean[i][j] /= len(self.grouped_features[i])
-
-        for i in range(len(self.overall_mean)):
-            self.overall_mean[i] /= len(self.training_data)
-
-    # Step 3: Calculate between-class and within-class covariance matrices.
-    def calculate_covariances(self):
-        self.between_covariance = np.zeros((self.dimension, self.dimension))
-        for i in self.class_mean:
-            group_size = len(self.grouped_features[i])
-            mean_difference = np.array([self.class_mean[i] - self.overall_mean])
-            mean_difference_transpose = mean_difference.transpose()
-            group_term = mean_difference_transpose.dot(mean_difference)
-            self.between_covariance += group_term
-
-        self.within_covariance = np.zeros((self.dimension, self.dimension))
-        for i in self.class_mean:
-            class_mean = np.array([self.class_mean])
-            for j in self.grouped_features[i]:
-                feature = np.array(j)
-                feature_minus_mean = np.array([feature - class_mean])
-                feature_minus_mean_transpose = feature_minus_mean.transpose()
-                self.within_covariance += feature_minus_mean_transpose.dot(feature_minus_mean)
-
-    # Step 4: Calculate the eigenvalues of X and get n eigenvectors for n desired dimensions
-    def calculate_eigenvalues(self):
-        covariance_product = np.dot(np.linalg.pinv(self.within_covariance), self.between_covariance) # Solve the eigenvalue problem inverse(within_covariance) * between_covariance * w = Lagrange_multiplier * w
-        eigenvalues, eigenvectors = np.linalg.eig(covariance_product)
-        eigenvalue_list = [(eigenvalues[i], eigenvectors[:, i]) for i in range(len(eigenvalues))]
-        eigenvalue_list = sorted(eigenvalue_list, key=lambda x: x[0], reverse=True) # A sorted list form highest to lowest eigenvalue with corresponding eigenvectors
-        self.W = np.array([eigenvalue_list[i][1]] for i in range(self.dimension))
-
-    # Step 5: Use the eigenvectors of 4 to construct Y to transform the training data
-    def construct_y(self):
-        self.Y = np.dot(self.data, self.W)
-    # Step 6: Apply the transformation
-    # Step 7: Classify by the calculated threshold
+    f = get_f(begin, end, W, wrapped_x)
+    inv_cov_mat = get_covariance_matrix(f)
+    f_in_classes = group_by_class(f, attended_ear)
+    mean1 = get_mean(np.array(f_in_classes[0]))
+    mean2 = get_mean(np.array(f_in_classes[1]))
+    v_t, b = get_vt_b(inv_cov_mat, mean1, mean2)
+    attended_ear2 = CSP.unwrap_cell_data(wrapped_attended_ear)[36:]
+    f = get_f(36, 48, W, wrapped_x)
+    count = 0
+    for i in range(12):
+        D = get_D(v_t, b, f[i])
+        if attended_ear2[i] != classify(D):
+            count += 1
+    print("Count:", count)  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
