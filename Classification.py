@@ -37,15 +37,30 @@ class Fischer_linear_discriminant:
         self.data = data # Data is given as a list of feature vectors
         self.dimension = dimension # The dimension of the feature vector
         self.dimension = len(self.data[0]) - 1
-        self.group()
+        self.set_group()
         self.calculate_means()
         self.calculate_covariances()
         self.calculate_eigenvalues()
         self.transform()
+        self.get_classes()
 
     # Step 1: Group the features vectors into their classes (speaker 1 or speaker 2).
-    def group(self):
-        self.grouped_features = {}
+    def set_group(self):
+        class_one = []
+        class_two = []
+        classes = Fischer_linear_discriminant.get_classes()
+        for x in classes:
+            if x == 1:
+                class_one.append(np.transpose(self.data[x]))
+            else:
+                class_two.append(np.transpose(self.data[x]))
+        self.grouped_features = np.array([class_one, class_two])
+
+    def get_classes(self):
+        data = loadmat('dataSubject8.mat')
+        wrapped_attended_ear = np.array(data.get('attendedEar'))[:36]
+        attended_ear = CSP.unwrap_cell_data(wrapped_attended_ear)
+        return attended_ear
 
     # Step 2: Calculate the overall mean and per class means.
     def calculate_means(self):
