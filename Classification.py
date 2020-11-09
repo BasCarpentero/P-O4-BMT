@@ -105,9 +105,10 @@ class Fischer_linear_discriminant:
         eigenvalues, eigenvectors = np.linalg.eig(covariance_product)
         eigenvalue_list = [(eigenvalues[i], eigenvectors[:, i]) for i in range(len(eigenvalues))]
         eigenvalue_list = sorted(eigenvalue_list, key=lambda x: x[0], reverse=True) # A sorted list form highest to lowest eigenvalue with corresponding eigenvectors
-        X = np.array([eigenvalue_list[i][1]] for i in range(self.dimension))
-        self.X = X
+        self.W = np.array([eigenvalue_list[i][1]] for i in range(self.dimension))
 
     # Step 5: Use the eigenvectors of 4 to construct Y to transform the training data
+    def construct_y(self):
+        self.Y = np.dot(self.X, self.W)
     # Step 6: Apply the transformation
     # Step 7: Classify by the calculated threshold
