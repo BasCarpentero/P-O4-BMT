@@ -109,6 +109,6 @@ class Fischer_linear_discriminant:
 
     # Step 5: Use the eigenvectors of 4 to construct Y to transform the training data
     def construct_y(self):
-        self.Y = np.dot(self.X, self.W)
+        self.Y = np.dot(self.data, self.W)
     # Step 6: Apply the transformation
     # Step 7: Classify by the calculated threshold
