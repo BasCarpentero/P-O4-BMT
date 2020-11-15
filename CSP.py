@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.io import loadmat
 import scipy.linalg as la
 
 
@@ -53,16 +52,3 @@ def CSP(class_covariances):
     eigenvalues = eigenvalues[descending_eigenvalues]
     eigenvectors = eigenvectors[:, descending_eigenvalues]
     return eigenvectors
-
-
-if __name__ == "__main__":
-
-    data = loadmat('dataSubject8.mat')
-    wrapped_attended_ear = np.array(data.get('attendedEar'))
-    attended_ear = unwrap_cell_data(wrapped_attended_ear)
-    wrapped_EEG_data = np.array(data.get('eegTrials'))
-    EEG_data = unwrap_cell_data(wrapped_EEG_data)
-
-    grouped_data = group_by_class(EEG_data, attended_ear)
-    class_covariances = spatial_covariance_matrices(grouped_data)
-    test_W = CSP(class_covariances)

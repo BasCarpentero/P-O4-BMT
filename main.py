@@ -1,74 +1,111 @@
-#-------------------------------------------------------------------------------------------------------
-#BANDPASS FILTER
-
-# This script contains the code for the filterbank in the first step of the directional EEG decoding
-# This library contains the necessary tools to construct passband filters
-from scipy.signal import butter, lfilter
+import CSP
+import numpy as np
+from scipy.io import loadmat
 
 
-# Calculates an IIR filter with given lowcut and highcut cutting frequencies and the desired order.
-def butter_bandpass(lowcut, highcut, sampling_frequency, order=5):
-    nyquist_frequency = 0.5 * sampling_frequency
-    low = lowcut / nyquist_frequency
-    high = highcut / nyquist_frequency
-    b, a = butter(order, [low, high], btype='band')  # IIR filter constants
-    return b, a
+# Returns the log-energy vector computed with T samples given the CSP-filtered data y.
+def feature(y, T):
+    #@param: x is a C x A matrix with C = #channels and A = #time instances
+    #@param: W is a C x K matrix with C = #channels and K = # spatial filters
+    outputEnergyVector = np.zeros(len(y))
+    for i in range(T):
+        for j in range(0, len(y)):
+            outputEnergyVector[j] += (y[j][i])**2
+    return np.log(outputEnergyVector)
 
 
-# Applies a bandpass filter to the given data.
-def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
-    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
-    y = lfilter(b, a, data)
-    return y
+def calculate_f(begin, end, W, x):
+    f = []
+    for i in range(begin, end):
+        xi = x[i][0].T
+        y = np.dot(W.T, xi)
+        T = 7190
+        f.append(feature(y, T))
+    return np.array(f)
 
-# Example; should work for the data that will be given to us.
+
+# class 1: LEFT
+# class 2: RIGHT
+def group_by_class(f, classes):
+    class_one = []
+    class_two = []
+    for x in classes:
+        if x == 1:
+            class_one.append(np.transpose(f[x]))
+        else:
+            class_two.append(np.transpose(f[x]))
+    return np.array([class_one, class_two], dtype=object)
+
+
+def get_covariance_matrix(data):
+    x = np.vstack(data.transpose())
+    covMatrix = np.cov(x)
+    return np.linalg.inv(covMatrix)
+
+
+def calculate_mean(data):
+    data = np.transpose(data)
+    mean = []
+    for i in range(np.shape(data)[0]):
+        mean_x = sum(data[i]) / len(data[i])
+        mean.append(mean_x)
+    return mean
+
+
+def calculate_vt_b(inv_cov_mat, m1, m2):
+    diff_mean = [0] * len(m1)
+    sum_mean = [0] * len(m1)
+    for i in range(len(m1)):
+        diff_mean[i] = m2[i] - m1[i]
+        sum_mean[i] = m2[i] + m1[i]
+    v = np.dot(inv_cov_mat, diff_mean)
+    v_t = v.transpose()
+    b = -0.5 * np.dot(v_t, sum_mean)
+    return v_t, b
+
+
+def calculate_D(v_t, b, f):
+    return np.dot(v_t, f) + b
+
+
+def classify(D):
+    if D > 0:
+        return 1
+    else:
+        return 2
+
+
 if __name__ == "__main__":
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from scipy.signal import freqz
+    data = loadmat('/Users/ogppr/Documents/dataSubject8.mat')
+    wrapped_attended_ear = np.array(data.get('attendedEar'))
+    attended_ear = CSP.unwrap_cell_data(wrapped_attended_ear)
+    attended_ear_1 = CSP.unwrap_cell_data(wrapped_attended_ear)[:36]
+    attended_ear_2 = np.delete(attended_ear, np.s_[24-36], axis=0)
+    attended_ear_3 = np.delete(attended_ear, np.s_[12-24], axis=0)
+    attended_ear_4 = np.delete(attended_ear, np.s_[0-12], axis=0)
+    wrapped_EEG_data = np.array(data.get('eegTrials'))
+    EEG_data = CSP.unwrap_cell_data(wrapped_EEG_data)
+    EEG_data_1 = CSP.unwrap_cell_data(wrapped_EEG_data)[0:36]
+    EEG_data_2 = np.delete(EEG_data, np.s_[24-36], axis=0)
+    EEG_data_3 = np.delete(EEG_data, np.s_[12-24], axis=0)
+    EEG_data_4 = np.delete(EEG_data, np.s_[0-12], axis=0)
 
-    # Sample rate and desired cutoff frequencies (in Hz).
-    fs = 5000.0
-    lowcut = 500.0
-    highcut = 1250.0
+    grouped_data = CSP.group_by_class(EEG_data, attended_ear)
+    class_covariances = CSP.spatial_covariance_matrices(grouped_data)
+    W = CSP.CSP(class_covariances)
 
-    # Plot the frequency response for a few different orders.
-    plt.figure(1)
-    plt.clf()
-    for order in [3, 6, 9]:
-        b, a = butter_bandpass(lowcut, highcut, fs, order=order)
-        w, h = freqz(b, a, worN=2000)
-        plt.plot((fs * 0.5 / np.pi) * w, abs(h), label="order = %d" % order)
-
-    plt.plot([0, 0.5 * fs], [np.sqrt(0.5), np.sqrt(0.5)],
-             '--', label='sqrt(0.5)')
-    plt.xlabel('Frequency (Hz)')
-    plt.ylabel('Gain')
-    plt.grid(True)
-    plt.legend(loc='best')
-
-    # Filter a noisy signal.
-    T = 0.05
-    nsamples = 100 # T * fs
-    t = np.linspace(0, T, nsamples, endpoint=False)
-    a = 0.02
-    f0 = 600.0
-    x = 0.1 * np.sin(2 * np.pi * 1.2 * np.sqrt(t))
-    x += 0.01 * np.cos(2 * np.pi * 312 * t + 0.1)
-    x += a * np.cos(2 * np.pi * f0 * t + .11)
-    x += 0.03 * np.cos(2 * np.pi * 2000 * t)
-    plt.figure(2)
-    plt.clf()
-    plt.plot(t, x, label='Noisy signal')
-
-    y = butter_bandpass_filter(x, lowcut, highcut, fs, order=6)
-    plt.plot(t, y, label='Filtered signal (%g Hz)' % f0)
-    plt.xlabel('time (seconds)')
-    plt.hlines([-a, a], 0, T, linestyles='--')
-    plt.grid(True)
-    plt.axis('tight')
-    plt.legend(loc='upper left')
-
-    plt.show()
-
-#-------------------------------------------------------------------------------------------------------
+    wrapped_x = np.array(data.get('eegTrials'))
+    f = calculate_f(begin, end, W, wrapped_x)
+    inv_cov_mat = get_covariance_matrix(f)
+    f_in_classes = group_by_class(f, attended_ear)
+    mean1 = calculate_mean(np.array(f_in_classes[0]))
+    mean2 = calculate_mean(np.array(f_in_classes[1]))
+    v_t, b = calculate_vt_b(inv_cov_mat, mean1, mean2)
+    attended_ear2 = CSP.unwrap_cell_data(wrapped_attended_ear)[36:]
+    f = calculate_f(36, 48, W, wrapped_x)
+    count = 0
+    for i in range(12):
+        D = calculate_D(v_t, b, f[i])
+        if attended_ear2[i] != classify(D):
+            count += 1
+    print("Count:", count)  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
