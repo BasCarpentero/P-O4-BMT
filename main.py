@@ -4,23 +4,23 @@ from scipy.io import loadmat
 
 
 # Returns the log-energy vector computed with T samples given the CSP-filtered data y.
-def feature(y, T):
-    #@param: x is a C x A matrix with C = #channels and A = #time instances
-    #@param: W is a C x K matrix with C = #channels and K = # spatial filters
+def energy(y, decisionWindow):
     outputEnergyVector = np.zeros(len(y))
-    for i in range(T):
+    for i in range(decisionWindow):
         for j in range(0, len(y)):
             outputEnergyVector[j] += (y[j][i])**2
     return np.log(outputEnergyVector)
 
 
-def calculate_f(begin, end, W, x):
+def calculate_f(testMinutes, W, x):
     f = []
-    for i in range(begin, end):
+    for i in testMinutes:
+        # x is a C x A matrix with C = #channels and A = #time instances
+        # W is a C x K matrix with C = #channels and K = # spatial filters
         xi = x[i][0].T
         y = np.dot(W.T, xi)
         T = 7190
-        f.append(feature(y, T))
+        f.append(energy(y, T))
     return np.array(f)
 
 
@@ -37,7 +37,7 @@ def group_by_class(f, classes):
     return np.array([class_one, class_two], dtype=object)
 
 
-def get_covariance_matrix(data):
+def calculate_covariance_matrix(data):
     x = np.vstack(data.transpose())
     covMatrix = np.cov(x)
     return np.linalg.inv(covMatrix)
@@ -64,106 +64,133 @@ def calculate_vt_b(inv_cov_mat, m1, m2):
     return v_t, b
 
 
-def calculate_D(v_t, b, f):
-    return np.dot(v_t, f) + b
-
-
-def classify(D):
-    if D > 0:
+def classify(v_t, b, f):
+    if np.dot(v_t, f) + b > 0:
         return 1
     else:
         return 2
 
 
 if __name__ == "__main__":
-    #data = loadmat('/Users/ogppr/Documents/dataSubject8.mat')
-    data = loadmat('dataSubject8.mat')
+    data = loadmat('/Users/ogppr/Documents/dataSubject8.mat')
+    #data = loadmat('dataSubject8.mat')
+
+    # Select the corresponding attended ear results for each test case.
     wrapped_attended_ear = np.array(data.get('attendedEar'))
     attended_ear = CSP.unwrap_cell_data(wrapped_attended_ear)
     attended_ear_1 = CSP.unwrap_cell_data(wrapped_attended_ear)[:36]
     attended_ear_2 = np.delete(attended_ear, np.s_[24-36], axis=0)
     attended_ear_3 = np.delete(attended_ear, np.s_[12-24], axis=0)
     attended_ear_4 = np.delete(attended_ear, np.s_[0-12], axis=0)
+
+    # Select the test data columns for each case.
     wrapped_EEG_data = np.array(data.get('eegTrials'))
+    wrapped_x = np.array(data.get('eegTrials'))
     EEG_data = CSP.unwrap_cell_data(wrapped_EEG_data)
     EEG_data_1 = CSP.unwrap_cell_data(wrapped_EEG_data)[0:36]
     EEG_data_2 = np.delete(EEG_data, np.s_[24-36], axis=0)
     EEG_data_3 = np.delete(EEG_data, np.s_[12-24], axis=0)
     EEG_data_4 = np.delete(EEG_data, np.s_[0-12], axis=0)
 
-    grouped_data = CSP.group_by_class(EEG_data, attended_ear)
+    # grouped_data = CSP.group_by_class(EEG_data, attended_ear)
+    # class_covariances = CSP.spatial_covariance_matrices(grouped_data)
+    # W = CSP.CSP(class_covariances)
+
+    # case 4: verification 36-48
+    grouped_data = CSP.group_by_class(EEG_data_1, attended_ear_1)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
     W = CSP.CSP(class_covariances)
-
-    wrapped_x = np.array(data.get('eegTrials'))
-    #geval 1: test data 12-48
-    begin, end = 12, 48
-    f = calculate_f(begin, end, W, wrapped_x)
-    inv_cov_mat = get_covariance_matrix(f)
+    testMinutes = []
+    for i in range(0, 36):
+        testMinutes.append(i)
+    f = calculate_f(testMinutes, W, wrapped_x)
+    inv_cov_mat = calculate_covariance_matrix(f)
+    f_in_classes = group_by_class(f, attended_ear_1)
+    mean1 = calculate_mean(np.array(f_in_classes[0]))
+    mean2 = calculate_mean(np.array(f_in_classes[1]))
+    v_t, b = calculate_vt_b(inv_cov_mat, mean1, mean2)
+    restMinutes = []
+    for i in range(0, 12):
+        restMinutes.append(i)
+    f = calculate_f(restMinutes, W, wrapped_x)
+    count = 0
+    for i in range(12):
+        if attended_ear_1[i] != classify(v_t, b, f[i]):
+            count += 1
+    print("Count:", count, (100 - (count * 100 / 12)), "% juist")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
+    #
+    #
+    # case 1: test data 12-48
+    grouped_data = CSP.group_by_class(EEG_data_4, attended_ear_4)
+    class_covariances = CSP.spatial_covariance_matrices(grouped_data)
+    W = CSP.CSP(class_covariances)
+    testMinutes = []
+    for i in range(12, 48):
+        testMinutes.append(i)
+    f = calculate_f(testMinutes, W, wrapped_x)
+    inv_cov_mat = calculate_covariance_matrix(f)
     f_in_classes = group_by_class(f, attended_ear[12:48])
     mean1 = calculate_mean(np.array(f_in_classes[0]))
     mean2 = calculate_mean(np.array(f_in_classes[1]))
     v_t, b = calculate_vt_b(inv_cov_mat, mean1, mean2)
-    attended_ear2 = CSP.unwrap_cell_data(wrapped_attended_ear)[:12]
-    f = calculate_f(0, 12, W, wrapped_x)
+    restMinutes = []
+    for i in range(0, 12):
+        restMinutes.append(i)
+    f = calculate_f(restMinutes, W, wrapped_x)
     count = 0
     for i in range(12):
-        D = calculate_D(v_t, b, f[i])
-        if attended_ear2[i] != classify(D):
+        if attended_ear_4[i] != classify(v_t, b, f[i]):
             count += 1
     print("Count:", count, (100 - (count*100/12)), "% juist")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
-
-    # geval 2: verificatie 12-24-> 12-23
-    f = []
-    print(np.shape(calculate_f(0, 12, W, wrapped_x)))
-    f.append(calculate_f(0, 12, W, wrapped_x))
-    f.append(calculate_f(24, 48, W, wrapped_x))
-    print(np.shape(f))
-    inv_cov_mat = get_covariance_matrix(f)
-    attended_ear2 = np.array([attended_ear[0:12],attended_ear[24:48]])
-    f_in_classes = group_by_class(f, attended_ear2)
+    #
+    #
+    # case 2: verification 12-24-> 12-23
+    grouped_data = CSP.group_by_class(EEG_data_2, attended_ear_2)
+    class_covariances = CSP.spatial_covariance_matrices(grouped_data)
+    W = CSP.CSP(class_covariances)
+    testMinutes = []
+    for i in range(0, 12):
+        testMinutes.append(i)
+    for i in range(24, 48):
+        testMinutes.append(i)
+    f = calculate_f(testMinutes, W, wrapped_x)
+    inv_cov_mat = calculate_covariance_matrix(f)
+    f_in_classes = group_by_class(f, attended_ear_2)
     mean1 = calculate_mean(np.array(f_in_classes[0]))
     mean2 = calculate_mean(np.array(f_in_classes[1]))
     v_t, b = calculate_vt_b(inv_cov_mat, mean1, mean2)
-    attended_ear2 = CSP.unwrap_cell_data(wrapped_attended_ear)[12:24]
-    f = calculate_f(12, 24, W, wrapped_x)
+    restMinutes = []
+    for i in range(12, 24):
+        restMinutes.append(i)
+    f = calculate_f(restMinutes, W, wrapped_x)
     count = 0
     for i in range(12):
-        D = calculate_D(v_t, b, f[i])
-        if attended_ear2[i] != classify(D):
+        if attended_ear_2[i] != classify(v_t, b, f[i]):
             count += 1
     print("Count:", count, (100 - (count * 100 / 12)), "% juist")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
-
-    # geval 3: verify 24-36
-    f = [calculate_f(0, 24, W, wrapped_x), calculate_f(36, 48, W, wrapped_x)]
-    f = np.array(f)
-    inv_cov_mat = get_covariance_matrix(f)
-    attended_ear2 = np.array([attended_ear[0:12], attended_ear[24:48]])
-    f_in_classes = group_by_class(f, attended_ear2)
+    #
+    #
+    # case 3: verify 24-36
+    grouped_data = CSP.group_by_class(EEG_data_3, attended_ear_3)
+    class_covariances = CSP.spatial_covariance_matrices(grouped_data)
+    W = CSP.CSP(class_covariances)
+    testMinutes = []
+    for i in range(0, 24):
+        testMinutes.append(i)
+    for i in range(36, 48):
+        testMinutes.append(i)
+    f = calculate_f(testMinutes, W, wrapped_x)
+    inv_cov_mat = calculate_covariance_matrix(f)
+    f_in_classes = group_by_class(f, attended_ear_3)
     mean1 = calculate_mean(np.array(f_in_classes[0]))
     mean2 = calculate_mean(np.array(f_in_classes[1]))
     v_t, b = calculate_vt_b(inv_cov_mat, mean1, mean2)
-    attended_ear2 = CSP.unwrap_cell_data(wrapped_attended_ear)[24:36]
-    f = calculate_f(24, 36, W, wrapped_x)
+    restMinutes = []
+    for i in range(24, 36):
+        restMinutes.append(i)
+    f = calculate_f(restMinutes, W, wrapped_x)
     count = 0
     for i in range(12):
-        D = calculate_D(v_t, b, f[i])
-        if attended_ear2[i] != classify(D):
-            count += 1
-    print("Count:", count, (100 - (count * 100 / 12)), "% juist")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
-
-    # geval 4: verificatie 36-48
-    f = calculate_f(0, 36, W, wrapped_x)
-    inv_cov_mat = get_covariance_matrix(f)
-    f_in_classes = group_by_class(f, attended_ear[0:36])
-    mean1 = calculate_mean(np.array(f_in_classes[0]))
-    mean2 = calculate_mean(np.array(f_in_classes[1]))
-    v_t, b = calculate_vt_b(inv_cov_mat, mean1, mean2)
-    attended_ear2 = CSP.unwrap_cell_data(wrapped_attended_ear)[36:48]
-    f = calculate_f(36, 48, W, wrapped_x)
-    count = 0
-    for i in range(12):
-        D = calculate_D(v_t, b, f[i])
-        if attended_ear2[i] != classify(D):
+        if attended_ear_3[i] != classify(v_t, b, f[i]):
             count += 1
     print("Count:", count, (100 - (count * 100 / 12)), "% juist")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
