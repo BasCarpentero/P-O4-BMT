@@ -72,8 +72,8 @@ def classify(v_t, b, f):
 
 
 if __name__ == "__main__":
-    data = loadmat('/Users/ogppr/Documents/dataSubject8.mat')
-    #data = loadmat('dataSubject8.mat')
+    # data = loadmat('/Users/ogppr/Documents/dataSubject8.mat')
+    data = loadmat('dataSubject8.mat')
 
     # Select the corresponding attended ear results for each test case.
     wrapped_attended_ear = np.array(data.get('attendedEar'))
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     # class_covariances = CSP.spatial_covariance_matrices(grouped_data)
     # W = CSP.CSP(class_covariances)
 
-    # case 4: verification 36-48
+    # case 1: verification 36-48
     grouped_data = CSP.group_by_class(EEG_data_1, attended_ear_1)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
     W = CSP.CSP(class_covariances)
@@ -118,9 +118,8 @@ if __name__ == "__main__":
         if attended_ear_1[i] != classify(v_t, b, f[i]):
             count += 1
     print("Count:", count, (100 - (count * 100 / 12)), "% juist")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
-    #
-    #
-    # case 1: test data 12-48
+
+    # case 4: verification 0-12
     grouped_data = CSP.group_by_class(EEG_data_4, attended_ear_4)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
     W = CSP.CSP(class_covariances)
@@ -142,8 +141,7 @@ if __name__ == "__main__":
         if attended_ear_4[i] != classify(v_t, b, f[i]):
             count += 1
     print("Count:", count, (100 - (count*100/12)), "% juist")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
-    #
-    #
+    
     # case 2: verification 12-24-> 12-23
     grouped_data = CSP.group_by_class(EEG_data_2, attended_ear_2)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
@@ -168,8 +166,7 @@ if __name__ == "__main__":
         if attended_ear_2[i] != classify(v_t, b, f[i]):
             count += 1
     print("Count:", count, (100 - (count * 100 / 12)), "% juist")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
-    #
-    #
+
     # case 3: verify 24-36
     grouped_data = CSP.group_by_class(EEG_data_3, attended_ear_3)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
