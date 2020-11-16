@@ -1,6 +1,8 @@
 import CSP
 import numpy as np
 from scipy.io import loadmat
+import matplotlib.pyplot as plt
+
 
 
 # Returns the log-energy vector computed with T samples given the CSP-filtered data y.
@@ -78,70 +80,88 @@ if __name__ == "__main__":
     # Select the corresponding attended ear results for each test case.
     wrapped_attended_ear = np.array(data.get('attendedEar'))
     attended_ear = CSP.unwrap_cell_data(wrapped_attended_ear)
-    attended_ear_1 = CSP.unwrap_cell_data(wrapped_attended_ear)[:36]
-    attended_ear_2 = np.delete(attended_ear, np.s_[24-36], axis=0)
-    attended_ear_3 = np.delete(attended_ear, np.s_[12-24], axis=0)
-    attended_ear_4 = np.delete(attended_ear, np.s_[0-12], axis=0)
+    # attended_ear_2 = np.delete(attended_ear, np.s_[24-36], axis=0)
+    # attended_ear_3 = np.delete(attended_ear, np.s_[12-24], axis=0)
+    # attended_ear_4 = np.delete(attended_ear, np.s_[0-12], axis=0)
 
     # Select the test data columns for each case.
     wrapped_EEG_data = np.array(data.get('eegTrials'))
     wrapped_x = np.array(data.get('eegTrials'))
     EEG_data = CSP.unwrap_cell_data(wrapped_EEG_data)
-    EEG_data_1 = CSP.unwrap_cell_data(wrapped_EEG_data)[0:36]
-    EEG_data_2 = np.delete(EEG_data, np.s_[24-36], axis=0)
-    EEG_data_3 = np.delete(EEG_data, np.s_[12-24], axis=0)
-    EEG_data_4 = np.delete(EEG_data, np.s_[0-12], axis=0)
+    # EEG_data_2 = np.delete(EEG_data, np.s_[24-36], axis=0)
+    # EEG_data_3 = np.delete(EEG_data, np.s_[12-24], axis=0)
+    # EEG_data_4 = np.delete(EEG_data, np.s_[0-12], axis=0)
 
     # grouped_data = CSP.group_by_class(EEG_data, attended_ear)
     # class_covariances = CSP.spatial_covariance_matrices(grouped_data)
     # W = CSP.CSP(class_covariances)
 
     # case 1: verification 36-48
+    #training
+    EEG_data_1 = EEG_data[0:36]
+    attended_ear_1 = attended_ear[:36]
     grouped_data = CSP.group_by_class(EEG_data_1, attended_ear_1)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
     W = CSP.CSP(class_covariances)
-    testMinutes = []
+    trainMinutes = []
     for i in range(0, 36):
-        testMinutes.append(i)
-    f = calculate_f(testMinutes, W, wrapped_x)
+        trainMinutes.append(i)
+    f = calculate_f(trainMinutes, W, wrapped_x) #dimensies: 36x24
+    plt.figure()
+    plt.scatter(f[0],f[1],color='red')
+    plt.scatter(f[2], f[3], color='blue')
+    plt.scatter(f[4],f[5],color='green')
+    plt.show()
+
     inv_cov_mat = calculate_covariance_matrix(f)
     f_in_classes = group_by_class(f, attended_ear_1)
     mean1 = calculate_mean(np.array(f_in_classes[0]))
     mean2 = calculate_mean(np.array(f_in_classes[1]))
     v_t, b = calculate_vt_b(inv_cov_mat, mean1, mean2)
-    restMinutes = []
+    testMinutes = []
     for i in range(0, 12):
-        restMinutes.append(i)
-    f = calculate_f(restMinutes, W, wrapped_x)
+        testMinutes.append(i)
+
+    #verification
+    f = calculate_f(testMinutes, W, wrapped_x)
     count = 0
     for i in range(12):
-        if attended_ear_1[i] != classify(v_t, b, f[i]):
+        if attended_ear[36+i] != classify(v_t, b, f[i]):
             count += 1
     print("Count:", count, (100 - (count * 100 / 12)), "% juist")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
 
-    # case 4: verification 0-12
-    grouped_data = CSP.group_by_class(EEG_data_4, attended_ear_4)
+
+    # case 2: verification 0-12
+    EEG_data_2 = EEG_data[12:]
+    attended_ear_2 = attended_ear[12:]
+    grouped_data = CSP.group_by_class(EEG_data_2, attended_ear_2)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
     W = CSP.CSP(class_covariances)
-    testMinutes = []
+    trainMinutes = []
     for i in range(12, 48):
-        testMinutes.append(i)
-    f = calculate_f(testMinutes, W, wrapped_x)
+        trainMinutes.append(i)
+    f = calculate_f(trainMinutes, W, wrapped_x)
+    # plt.figure()
+    # plt.scatter(f[0],f[1],color='red')
+    # plt.scatter(f[2], f[3], color='blue')
+    # plt.scatter(f[4],f[5],color='green')
+    # plt.show()
+    # plt.close()
     inv_cov_mat = calculate_covariance_matrix(f)
     f_in_classes = group_by_class(f, attended_ear[12:48])
     mean1 = calculate_mean(np.array(f_in_classes[0]))
     mean2 = calculate_mean(np.array(f_in_classes[1]))
     v_t, b = calculate_vt_b(inv_cov_mat, mean1, mean2)
-    restMinutes = []
+    testMinutes = []
     for i in range(0, 12):
-        restMinutes.append(i)
-    f = calculate_f(restMinutes, W, wrapped_x)
+        testMinutes.append(i)
+    f = calculate_f(testMinutes, W, wrapped_x)
     count = 0
     for i in range(12):
-        if attended_ear_4[i] != classify(v_t, b, f[i]):
+        if attended_ear[i] != classify(v_t, b, f[i]):
             count += 1
     print("Count:", count, (100 - (count*100/12)), "% juist")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
-    
+    '''
     # case 2: verification 12-24-> 12-23
     grouped_data = CSP.group_by_class(EEG_data_2, attended_ear_2)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
@@ -191,3 +211,20 @@ if __name__ == "__main__":
         if attended_ear_3[i] != classify(v_t, b, f[i]):
             count += 1
     print("Count:", count, (100 - (count * 100 / 12)), "% juist")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
+'''
+
+
+    '''
+    def CSP(class_covariances):
+        # Solve the generalized eigenvalue problem resulting in eigenvalues and corresponding eigenvectors and
+        # sort them in descending order.
+        eigenvalues, eigenvectors = la.eigh(class_covariances[0], class_covariances[1])
+        ascending_eigenvalues = np.argsort(eigenvalues)
+        descending_eigenvalues = ascending_eigenvalues[::-1]
+        eigenvalues = eigenvalues[descending_eigenvalues]
+        eigenvectors = eigenvectors[:, descending_eigenvalues]
+        resultaat = np.zeros((24,6))
+        resultaat[:,:3] = np.array(eigenvectors[:,:3])
+        resultaat[:,3:] = np.array(eigenvectors[:,21:])
+        return resultaat
+    '''
