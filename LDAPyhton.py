@@ -98,8 +98,8 @@ if __name__ == "__main__":
     # grouped_data = CSP.group_by_class(EEG_data, attended_ear)
     # class_covariances = CSP.spatial_covariance_matrices(grouped_data)
     # W = CSP.CSP(class_covariances)
-
-    # case 1: verification 36-48
+    '''
+    # case 1:verification 36-48
     #training
     EEG_data_1 = EEG_data[0:36]
     attended_ear_1 = attended_ear[:36]
@@ -115,40 +115,32 @@ if __name__ == "__main__":
     lda = LDA()
     lda.fit(f,attended_ear_1)
 
-    # inv_cov_mat = calculate_covariance_matrix(f)
-    # f_in_classes = group_by_class(f, attended_ear_1)
-    # mean1 = calculate_mean(np.array(f_in_classes[0]))
-    # mean2 = calculate_mean(np.array(f_in_classes[1]))
-    # v_t, b = calculate_vt_b(inv_cov_mat, mean1, mean2)
-
-
     testMinutes = []
     for i in range(0, 12):
-        testMinutes.append(i)
+        testMinutes.append(36+i)
 
     #verification
     f = calculate_f(testMinutes, W, wrapped_x)
     resultaat = lda.predict(f)
     count = 0
     for i in range(12):
-        print(attended_ear[36+i], resultaat[i])
         if attended_ear[36+i] != resultaat[i]:
             count += 1
     print("Count:", count, (100 - (count * 100 / 12)), "% juist")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
 
 
     # case 2: verification 0-12
-    EEG_data_2 = EEG_data[12:]
-    attended_ear_2 = attended_ear[12:]
-    grouped_data = CSP.group_by_class(EEG_data_2, attended_ear_2)
-    class_covariances = CSP.spatial_covariance_matrices(grouped_data)
-    W = CSP.CSP(class_covariances)
-    trainMinutes = []
-    for i in range(12, 48):
-        trainMinutes.append(i)
-    f = calculate_f(trainMinutes, W, wrapped_x)
-    lda = LDA()
-    lda.fit(f,attended_ear_2)
+    # EEG_data_2 = EEG_data[12:]
+    # attended_ear_2 = attended_ear[12:]
+    # grouped_data = CSP.group_by_class(EEG_data_2, attended_ear_2)
+    # class_covariances = CSP.spatial_covariance_matrices(grouped_data)
+    # W = CSP.CSP(class_covariances)
+    # trainMinutes = []
+    # for i in range(12, 48):
+    #     trainMinutes.append(i)
+    # f = calculate_f(trainMinutes, W, wrapped_x)
+    # lda = LDA()
+    # lda.fit(f,attended_ear_2)
 
     # plt.figure()
     # plt.scatter(f[0],f[1],color='red')
@@ -169,7 +161,65 @@ if __name__ == "__main__":
     resultaat = lda.predict(f)
     count = 0
     for i in range(12):
-        print(attended_ear[i],resultaat[i])
         if attended_ear[i] != resultaat[i]:
             count += 1
-    print("Count:", count, (100 - (count*100/12)), "% juist")
+    print((100 - (count*100/12)), "% juist")
+    '''
+    # Case 4: training 1-24 + 36-48, verification 24-36
+    print("Case 4: train 1-24+34-48, test 24-36")
+    attended_ear_4 = attended_ear[:12] + attended_ear[24:]
+    EEG_data_4 = EEG_data[:12] + EEG_data[24:]
+    # CSP training
+    grouped_data = CSP.group_by_class(EEG_data_4, attended_ear_4)
+    class_covariances = CSP.spatial_covariance_matrices(grouped_data)
+    W = CSP.CSP(class_covariances)
+    # LDA training
+    trainMinutes = []
+    for i in range(0, 24):
+        trainMinutes.append(i)
+    for i in range(36, 48):
+        trainMinutes.append(i)
+    f = calculate_f(trainMinutes, W, wrapped_x)
+    lda = LDA(store_covariance=True)
+    lda.fit(f,attended_ear_4)
+
+
+    # verificiation
+    testMinutes = []
+    for i in range(24, 36):
+        testMinutes.append(i)
+    f = calculate_f(testMinutes, W, wrapped_x)
+    resultaat = lda.predict(f)
+    count = 0
+    for i in range(12):
+        if attended_ear[24 + i] != resultaat[i]:
+            count += 1
+    print((100 - (count * 100 / 12)), "%")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
+
+    # Case 5: training 1-36, verification 24-36
+    print("Case 5: train 1-24, test 1-24")
+    EEG_data_5 = EEG_data[0:24]
+    attended_ear_5 = attended_ear[:24]
+    # CSP training
+    grouped_data = CSP.group_by_class(EEG_data_5, attended_ear_5)
+    class_covariances = CSP.spatial_covariance_matrices(grouped_data)
+    W = CSP.CSP(class_covariances)
+    # LDA training
+    trainMinutes = []
+    for i in range(0, 24):
+        trainMinutes.append(i)
+    f = calculate_f(trainMinutes, W, wrapped_x) #dimensies: 36x24
+    lda = LDA(store_covariance=True)
+    lda.fit(f,attended_ear_5)
+    # Verificiation
+    testMinutes = []
+    for i in range(0, 24):
+        testMinutes.append(i)
+    f = calculate_f(testMinutes, W, wrapped_x)
+    resultaat = lda.predict(f)
+    count = 0
+    for i in range(24):
+        if attended_ear[i] != resultaat[i]:
+            count += 1
+    print((100 - (count * 100 / 24)), "%")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
+
