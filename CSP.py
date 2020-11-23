@@ -2,27 +2,6 @@ import numpy as np
 import scipy.linalg as la
 
 
-# A helper function to modify the given data, getting rid of Matlab's cell structures.
-def unwrap_cell_data(cell_data):
-    unwrapped_data = []
-    for x in cell_data:
-        unwrapped_data.append(x[0])
-    return unwrapped_data
-
-
-# A helper function to classify given samples into their classes, returns a dictionary with keys 'class_x' and a list
-# of corresponding samples as values.
-def group_by_class(samples, sample_classes):
-    class_one = []
-    class_two = []
-    for x in sample_classes:
-        if x == 1:
-            class_one.append(np.transpose(samples[x]))
-        else:
-            class_two.append(np.transpose(samples[x]))
-    return {"class_one": class_one, "class_two": class_two}
-
-
 # A helper function to compute covariance matrices
 def covariance_matrix(A):
     return np.dot(A, np.transpose(A)) / np.trace(np.dot(A, np.trace(A)))
@@ -31,7 +10,7 @@ def covariance_matrix(A):
 # A helper function to compute composite covariance matrices given a list of classes.
 def spatial_covariance_matrices(grouped_data):
     result = []
-    for group in grouped_data.values():
+    for group in grouped_data:
         # Initialize an empty matrix.
         spatial_covariance = covariance_matrix(group[0]) * 0
         count = 0
