@@ -111,11 +111,42 @@ if __name__ == "__main__":
     for i in range(36, 48):
         testMinutes.append(i)
     f = LDA.calculate_f(testMinutes, W, filtered_EEG_data)
+
+    ###plots###
+    v = np.transpose(v_t)
+    x = np.linspace(1, 6, 6)
+    plt.figure("Plot van f(12 x 6)")
+    for i in range(0,12):
+        plt.scatter(x,f[i])
+    plt.figure("Plot van v(6x1)")
+    plt.scatter(x,v)
+    #plt.plot([1,6], [0,0], 'r--')
+    plt.figure("Plot van v_t * f")
+    y = v_t * f
+    for i in range(0,12):
+        plt.scatter(x,y[i])
+    #plt.plot([1,6], [0,0], 'r--')
+
+
+    plt.figure("Classification")
+    xas = []
+    classification = []
+    D = []
     count = 0
     for i in range(12):
+        D.append(np.dot(v_t, f[i]) + b)
+        xas.append(i+1)
+        classification.append(LDA.classify(v_t, b, f[i]))
         if attended_ear[36+i] != LDA.classify(v_t, b, f[i]):
             count += 1
     print((100 - (count * 100 / 12)), "%")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
+    plt.scatter(xas,classification)
+    plt.figure("D(f)")
+    plt.scatter(xas,D)
+    plt.plot([1, 12], [0, 0], 'r--')
+    plt.show()
+    plt.close()
+
 
     # Case 2: training 12-48, verficiation 0-12
     print("Case 2: train 12-48, test 0-12")
