@@ -230,3 +230,45 @@ if __name__ == "__main__":
         resultaat[:,3:] = np.array(eigenvectors[:,21:])
         return resultaat
     '''
+
+    ###plots###
+    # fig, axs = plt.subplots(3, sharex=True, sharey=True)
+    # axs[0].scatter(f_in_classes[0][0], f_in_classes[0][1])
+    # axs[0].set_title('f[0], f[1]')
+    # axs[1].scatter(f_in_classes[1][7], f_in_classes[1][8], color='orange')
+    # axs[1].set_title('f[7], f[8]')
+    # axs[2].scatter(f_in_classes[0][10], f_in_classes[1][9], color='green')
+    # axs[2].set_title('f[2], f[3]')
+    # plt.show()
+    # axs[1, 1].plot(x, -y, 'tab:red')
+    # axs[1, 1].set_title('Axis [1, 1]')
+
+
+    # plt.scatter(f[0],f[1],color='red')
+    # plt.scatter(f_in_classes[0][0], f_in_classes[0][1], color='blue')
+    # plt.scatter(f_in_classes[0][0],f_in_classes[3],color='green')
+    #x = np.linspace(1,6,6)
+    # for i in range(np.shape(f_in_classes)[1]):
+    #     plt.scatter(f_in_classes[1][i][0],f_in_classes[1][i][5],color='red')
+    #     plt.scatter(f_in_classes[0][i][0],f_in_classes[0][i][5], color='green')
+    # plt.show()
+    # plt.close()
+    # plt.scatter(f[0],f[1],color='red')
+    # plt.scatter(f[2], f[3], color='blue')
+    # plt.scatter(f[4],f[5],color='green')
+
+    # v = np.transpose(v_t)
+    # x = np.linspace(1, 6, 6)
+    # plt.figure("Plot van f(12 x 6)")
+    # for i in range(0,12):
+    #     plt.scatter(x,f[i])
+    # plt.figure("Plot van v(6x1)")
+    # plt.scatter(x,v)
+    # #plt.plot([1,6], [0,0], 'r--')
+    # plt.figure("Plot van v_t * f")
+    # y = v_t * f
+    # for i in range(0,12):
+    #     plt.scatter(x,y[i])
+    # #plt.plot([1,6], [0,0], 'r--')
+
+

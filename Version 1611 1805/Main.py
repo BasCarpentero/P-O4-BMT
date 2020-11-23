@@ -103,30 +103,47 @@ if __name__ == "__main__":
     cov_mat = AuxiliaryFunctions.covariance_matrix(np.transpose(f))
     inv_cov_mat = np.linalg.inv(cov_mat)
     f_in_classes = AuxiliaryFunctions.group_by_class(f, attended_ear_1)
+    print(np.shape(f_in_classes))
     mean1 = LDA.calculate_mean(np.array(f_in_classes[0]))
     mean2 = LDA.calculate_mean(np.array(f_in_classes[1]))
     v_t, b = LDA.calculate_vt_b(inv_cov_mat, mean1, mean2)
+
+    print(attended_ear_1)
+
+    ###plots###
+    for i in range(np.shape(f_in_classes)[1]):
+        plt.scatter(f_in_classes[0][i][0], f_in_classes[0][i][5], color='green')
+        plt.scatter(f_in_classes[1][i][0],f_in_classes[1][i][5],color='red')
+    plt.legend(("Class 1", "Class 2"))
+    plt.title("Feature vectors 2D")
+    # plt.xlabel('f')
+    # plt.ylabel('f')
+    plt.show()
+    plt.close()
+
+
+    # v = np.transpose(v_t)
+    # x = np.linspace(1, 6, 6)
+    # plt.figure("Plot van f(12 x 6)")
+    # for i in range(0,12):
+    #     plt.scatter(x,f[i])
+    # plt.figure("Plot van v(6x1)")
+    # plt.scatter(x,v)
+    # #plt.plot([1,6], [0,0], 'r--')
+    # plt.figure("Plot van v_t * f")
+    # y = v_t * f
+    # for i in range(0,12):
+    #     plt.scatter(x,y[i])
+    # #plt.plot([1,6], [0,0], 'r--')
+
+
+
+
     # Verificication
     testMinutes = []
     for i in range(36, 48):
         testMinutes.append(i)
     f = LDA.calculate_f(testMinutes, W, filtered_EEG_data)
-
-    ###plots###
-    v = np.transpose(v_t)
-    x = np.linspace(1, 6, 6)
-    plt.figure("Plot van f(12 x 6)")
-    for i in range(0,12):
-        plt.scatter(x,f[i])
-    plt.figure("Plot van v(6x1)")
-    plt.scatter(x,v)
-    #plt.plot([1,6], [0,0], 'r--')
-    plt.figure("Plot van v_t * f")
-    y = v_t * f
-    for i in range(0,12):
-        plt.scatter(x,y[i])
-    #plt.plot([1,6], [0,0], 'r--')
-
 
     plt.figure("Classification")
     xas = []
@@ -173,11 +190,27 @@ if __name__ == "__main__":
     for i in range(0, 12):
         testMinutes.append(i)
     f = LDA.calculate_f(testMinutes, W, filtered_EEG_data)
+
     count = 0
+    plt.figure("Classification")
+    xas = []
+    classification = []
+    D = []
+    print(attended_ear_2)
     for i in range(12):
+        D.append(np.dot(v_t, f[i]) + b)
+        xas.append(i+1)
+        classification.append(LDA.classify(v_t, b, f[i]))
         if attended_ear[i] != LDA.classify(v_t, b, f[i]):
             count += 1
     print((100 - (count*100/12)), "%")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
+    plt.scatter(xas,classification)
+    plt.figure("D(f)")
+    plt.scatter(xas,D)
+    plt.plot([1, 12], [0, 0], 'r--')
+    plt.show()
+    plt.close()
+
 
     # case 3: training 0-12 + 24-48, verification 12-24
     print("Case 3: train 0-12+24-48, test 12-24")

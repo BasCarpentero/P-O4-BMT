@@ -55,7 +55,7 @@ def calculate_vt_b(inv_cov_mat, m1, m2):
 
 
 def classify(v_t, b, f):
-    if np.dot(v_t, f) + b > 0:
+    if np.dot(v_t, f) + b < 0:
         return 1
     else:
         return 2

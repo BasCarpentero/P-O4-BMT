@@ -88,7 +88,7 @@ if __name__ == "__main__":
     for i in range(12):
         if attended_ear[36+i] != resultaat[i]:
             count += 1
-    print("Count:", count, (100 - (count * 100 / 12)), "% juist")
+    print((100 - (count * 100 / 12)), "%")
 
 
     # Case 2: training 12-48, verficiation 0-12

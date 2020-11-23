@@ -19,9 +19,9 @@ def covariance_matrix(A):
 def group_by_class(samples, sample_classes):
     class_one = []
     class_two = []
-    for x in sample_classes:
-        if x == 1:
-            class_one.append(np.transpose(samples[x]))
+    for i in range(len(samples)):
+        if sample_classes[i] == 1:
+            class_one.append(np.transpose(samples[i]))
         else:
-            class_two.append(np.transpose(samples[x]))
+            class_two.append(np.transpose(samples[i]))
     return np.array([class_one, class_two])#, dtype=object)
