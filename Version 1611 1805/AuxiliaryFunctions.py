@@ -11,7 +11,8 @@ def unwrap_cell_data(cell_data):
 
 # A helper function to compute covariance matrices
 def covariance_matrix(A):
-    return np.dot(A, np.transpose(A)) / np.trace(np.dot(A, np.trace(A)))
+    #return np.dot(A, np.transpose(A)) / np.trace(np.dot(A, np.trace(A)))
+    return np.cov(A)
 
 
 # A helper function to classify given samples into their classes, returns a dictionary with keys 'class_x' and a list

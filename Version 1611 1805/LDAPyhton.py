@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     # Load the given Matlab data.
     #data = loadmat('/Users/ogppr/Documents/dataSubject8.mat')
-    data = loadmat('dataSubject8.mat')
+    data = loadmat('dataSubject9.mat')
 
     # Data detailing which sample attends to which ear.
     wrapped_attended_ear = np.array(data.get('attendedEar'))

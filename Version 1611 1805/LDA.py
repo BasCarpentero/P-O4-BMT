@@ -54,8 +54,23 @@ def calculate_vt_b(inv_cov_mat, m1, m2):
     return v_t, b
 
 
-def classify(v_t, b, f):
-    if np.dot(v_t, f) + b < 0:
-        return 1
-    else:
-        return 2
+def calculate_D(v_t, f, b):
+    D = []
+    for i in range(len(f)):
+        D.append(np.dot(v_t, f[i]) + b)
+    return np.array(D)
+
+def classify(D):
+    classification = []
+    for value in D:
+        if value < 0:
+            classification.append(1)
+        else:
+            classification.append(2)
+    return np.array(classification)
+#
+# def classify(v_t, b, f):
+#     if np.dot(v_t, f) + b < 0:
+#         return 1
+#     else:
+#         return 2
