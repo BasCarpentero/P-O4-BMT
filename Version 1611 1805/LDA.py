@@ -1,7 +1,7 @@
 """
 This script contains the code for feature vector calculation and linear discriminant analysis.
 """
-from scipy.fft import fft, fftfreq
+from scipy.fftpack import fft, fftfreq
 import matplotlib.pyplot as plt
 from scipy.signal import freqz
 from scipy.io import loadmat

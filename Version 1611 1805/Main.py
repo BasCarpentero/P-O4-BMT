@@ -2,12 +2,12 @@
 This script contains the main function code.
 """
 
-from scipy.fft import fft, fftfreq
 import matplotlib.pyplot as plt
 from scipy.signal import freqz
 from scipy.io import loadmat
 import scipy.fftpack
 import scipy
+from scipy.fftpack import fft, fftfreq
 
 
 import numpy as np
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
 
     # Calculate a Butterworth bandpass filter for the given parameters.
-    fs = 120.0
+    fs = data.get('fs')
     low_cut = 12.0
     high_cut = 30.0
     # plt.figure(3)
