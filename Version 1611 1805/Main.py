@@ -37,9 +37,9 @@ if __name__ == "__main__":
     # EEG measured data.
     wrapped_EEG_data = np.array(data.get('eegTrials'))
     EEG_data = AuxiliaryFunctions.unwrap_cell_data(wrapped_EEG_data)
-    print('EEG_data is a list of length ' + str(len(EEG_data)) +
-          ' containing 24 channels and 7200 data points per minute.')
-    # plt.figure(2)
+    # print('EEG_data is a list of length ' + str(len(EEG_data)) +
+    #       ' containing 24 channels and 7200 data points per minute.')
+    # plt.figure("EEG data unfiltered")
     # plt.plot(EEG_data[0])
     # plt.xlabel('Time samples minute one')
     # plt.ylabel('Voltage')
@@ -47,15 +47,15 @@ if __name__ == "__main__":
 
 
     # Calculate a Butterworth bandpass filter for the given parameters.
-    fs = data.get('fs')
+    fs = int(data.get('fs'))
     low_cut = 12.0
     high_cut = 30.0
-    # plt.figure(3)
+    # plt.figure("Butterworth bandpass filters")
     # plt.clf()
     # for order in [3, 6, 9]:
     #      b, a = Filter.butter_bandpass(low_cut, high_cut, fs, order=order)
     #      w, h = freqz(b, a, worN=2000)
-        # plt.plot((fs * 0.5 / np.pi) * w, abs(h), label="order = %d" % order)
+    #     plt.plot((fs * 0.5 / np.pi) * w, abs(h), label="order = %d" % order)
     # plt.plot([0, 0.5 * fs], [np.sqrt(0.5), np.sqrt(0.5)],
     #          '--', label='sqrt(0.5)')
     # plt.xlabel('Frequency (Hz)')
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         y = np.transpose(y)
         y = y[100:]
         filtered_EEG_data.append(y)
-    # plt.figure(4)
+    # plt.figure("EEG data filtered (after cut-off)")
     # channel = 0
     # EEG_data_plot = np.transpose(filtered_EEG_data[0])
     # while channel < 24 :

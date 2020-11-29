@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     # Load the given Matlab data.
     #data = loadmat('/Users/ogppr/Documents/dataSubject8.mat')
-    data = loadmat('dataSubject9.mat')
+    data = loadmat('dataSubject8.mat')
 
     # Data detailing which sample attends to which ear.
     wrapped_attended_ear = np.array(data.get('attendedEar'))
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
 
     # Calculate a Butterworth bandpass filter for the given parameters.
-    fs = 120.0
+    fs = int(data.get('fs'))
     low_cut = 12.0
     high_cut = 30.0
 
