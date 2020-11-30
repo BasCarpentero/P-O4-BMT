@@ -57,7 +57,6 @@ if __name__ == "__main__":
     #      w, h = freqz(b, a, worN=2000)
     #     plt.plot((fs * 0.5 / np.pi) * w, abs(h), label="order = %d" % order)
     # plt.plot([0, 0.5 * fs], [np.sqrt(0.5), np.sqrt(0.5)],
-    #          '--', label='sqrt(0.5)')
     # plt.xlabel('Frequency (Hz)')
     # plt.ylabel('Gain')
     # plt.grid(True)
@@ -88,8 +87,6 @@ if __name__ == "__main__":
     print("Case 1: train 1-36, test 36-48")
     attended_ear_1 = np.delete(attended_ear, np.s_[36:48], axis=0)
     EEG_data_1 = np.delete(filtered_EEG_data, np.s_[36:48], axis=0)
-    print("attendedear1", np.shape(attended_ear_1))
-    print("eegdata1", np.shape(EEG_data_1))
     # CSP training
     grouped_data = AuxiliaryFunctions.group_by_class(EEG_data_1, attended_ear_1)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
@@ -148,13 +145,14 @@ if __name__ == "__main__":
         if attended_ear[36+i] != classification[i]:
             count += 1
     print((100 - (count * 100 / 12)), "%")
-    plt.figure("Classification")
-    plt.scatter(xas,classification)
-    plt.figure("D(f)")
-    plt.scatter(xas,D)
-    plt.plot([1,12], [0,0], 'r--')
-    plt.show()
-    plt.close()
+    # classify & D plot:
+    # plt.figure("Classification")
+    # plt.scatter(xas,classification)
+    # plt.figure("D(f)")
+    # plt.scatter(xas,D)
+    # plt.plot([1,12], [0,0], 'r--')
+    # plt.show()
+    # plt.close()
 
 
 
@@ -162,8 +160,6 @@ if __name__ == "__main__":
     print("Case 2: train 12-48, test 0-12")
     attended_ear_2 = np.delete(attended_ear, np.s_[:12], axis=0)
     EEG_data_2 = np.delete(filtered_EEG_data, np.s_[:12], axis=0)
-    print("attendedear2", np.shape(attended_ear_2))
-    print("eegdata2", np.shape(EEG_data_2))
     # CSP training
     grouped_data = AuxiliaryFunctions.group_by_class(EEG_data_2, attended_ear_2)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
@@ -207,13 +203,16 @@ if __name__ == "__main__":
         if attended_ear[i] != classification[i]:
             count += 1
     print((100 - (count * 100 / 12)), "%")
-    plt.figure("Classification")
-    plt.scatter(xas, classification)
-    plt.figure("D(f)")
-    plt.scatter(xas, D)
-    plt.plot([1,12], [0,0], 'r--')
-    plt.show()
-    plt.close()
+    # classify & D plot:
+    # plt.figure("Classification")
+    # plt.scatter(xas, classification)
+    # plt.figure("D(f)")
+    # plt.scatter(xas, D)
+    # plt.plot([1,12], [0,0], 'r--')
+    # plt.show()
+    # plt.close()
+
+  #oude classify functie:
     # count = 0
     # xas = []
     # classification = []
@@ -239,8 +238,6 @@ if __name__ == "__main__":
     print("Case 3: train 0-12+24-48, test 12-24")
     attended_ear_3 = np.delete(attended_ear, np.s_[24:36], axis=0)
     EEG_data_3 = np.delete(filtered_EEG_data, np.s_[24:36], axis=0)
-    print("attendedear3", np.shape(attended_ear_3))
-    print("eegdata3", np.shape(EEG_data_3))
     # CSP training
     grouped_data = AuxiliaryFunctions.group_by_class(EEG_data_3, attended_ear_3)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
@@ -273,13 +270,15 @@ if __name__ == "__main__":
         if attended_ear[12 + i] != classification[i]:
             count += 1
     print((100 - (count * 100 / 12)), "%")
-    plt.figure("Classification")
-    plt.scatter(xas, classification)
-    plt.figure("D(f)")
-    plt.scatter(xas, D)
-    plt.plot([1,12], [0,0], 'r--')
-    plt.show()
-    plt.close()
+    #classify & D plot:
+    #plt.figure("Classification")
+    # plt.scatter(xas, classification)
+    # plt.figure("D(f)")
+    # plt.scatter(xas, D)
+    # plt.plot([1,12], [0,0], 'r--')
+    # plt.show()
+    # plt.close()
+    #####
     # count = 0
     # for i in range(12):
     #     if attended_ear[12+i] != LDA.classify(v_t, b, f[i]):
@@ -292,8 +291,6 @@ if __name__ == "__main__":
     print("Case 4: train 1-24+34-48, test 24-36")
     attended_ear_4 = np.delete(attended_ear, np.s_[12:24], axis=0)
     EEG_data_4 = np.delete(filtered_EEG_data, np.s_[12:24], axis=0)
-    print("attendedear4", np.shape(attended_ear_4))
-    print("eegdata4", np.shape(EEG_data_4))
     #CSP training
     grouped_data = AuxiliaryFunctions.group_by_class(EEG_data_4, attended_ear_4)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
@@ -326,13 +323,15 @@ if __name__ == "__main__":
         if attended_ear[24 + i] != classification[i]:
             count += 1
     print((100 - (count * 100 / 12)), "%")
-    plt.figure("Classification")
-    plt.scatter(xas, classification)
-    plt.figure("D(f)")
-    plt.scatter(xas, D)
-    plt.plot([1,12], [0,0], 'r--')
-    plt.show()
-    plt.close()
+    #classify & D plot:
+    # plt.figure("Classification")
+    # plt.scatter(xas, classification)
+    # plt.figure("D(f)")
+    # plt.scatter(xas, D)
+    # plt.plot([1,12], [0,0], 'r--')
+    # plt.show()
+    # plt.close()
+    ####
     # count = 0
     # for i in range(12):
     #     if attended_ear[24+i] != LDA.classify(v_t, b, f[i]):
@@ -345,8 +344,6 @@ if __name__ == "__main__":
     print("Case 5: train 1-12, test 12-48")
     attended_ear_5 = np.delete(attended_ear, np.s_[24:48], axis=0)
     EEG_data_5 = np.delete(filtered_EEG_data, np.s_[24:48], axis=0)
-    print("attendedear5", np.shape(attended_ear_5))
-    print("eegdata5", np.shape(EEG_data_5))
     #CSP training
     grouped_data = AuxiliaryFunctions.group_by_class(EEG_data_5, attended_ear_5)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
@@ -374,7 +371,6 @@ if __name__ == "__main__":
     for i in range(0, 24):
         testMinutes.append(i)
     f = LDA.calculate_f(testMinutes, W, filtered_EEG_data)
-    print(np.shape(f))
     for i in range(6):
         yellow_scat = plt.scatter(f[i][0],f[i][5], color='yellow', label='Test Class 1')
         plt.scatter(f[i+ 12][0], f[i+12][5], color='yellow')
@@ -394,13 +390,15 @@ if __name__ == "__main__":
         if attended_ear[i+24] != classification[i]:
             count += 1
     print((100 - (count * 100 / 24)), "%")
-    plt.figure("Classification")
-    plt.scatter(xas, classification)
-    plt.figure("D(f)")
-    plt.scatter(xas, D)
-    plt.plot([0,24], [0,0], 'r--')
-    plt.show()
-    plt.close()
+    # classify & D plot:
+    # plt.figure("Classification")
+    # plt.scatter(xas, classification)
+    # plt.figure("D(f)")
+    # plt.scatter(xas, D)
+    # plt.plot([0,24], [0,0], 'r--')
+    # plt.show()
+    # plt.close()
+    ###
     # count = 0
     # for i in range(24):
     #     if attended_ear[i] != LDA.classify(v_t, b, f[i]):
