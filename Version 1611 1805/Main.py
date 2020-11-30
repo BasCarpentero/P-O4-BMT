@@ -88,6 +88,8 @@ if __name__ == "__main__":
     print("Case 1: train 1-36, test 36-48")
     attended_ear_1 = np.delete(attended_ear, np.s_[36:48], axis=0)
     EEG_data_1 = np.delete(filtered_EEG_data, np.s_[36:48], axis=0)
+    print("attendedear1", np.shape(attended_ear_1))
+    print("eegdata1", np.shape(EEG_data_1))
     # CSP training
     grouped_data = AuxiliaryFunctions.group_by_class(EEG_data_1, attended_ear_1)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
@@ -106,17 +108,23 @@ if __name__ == "__main__":
     v_t, b = LDA.calculate_vt_b(inv_cov_mat, mean1, mean2)
     ###plots###
     for i in range(np.shape(f_in_classes)[1]):
-        plt.scatter(f_in_classes[0][i][0], f_in_classes[0][i][5], color='green')
-        plt.scatter(f_in_classes[1][i][0],f_in_classes[1][i][5],color='red')
-    plt.legend(("Class 1", "Class 2"))
-    plt.title("Feature vectors 2D")
-    plt.show()
-    plt.close()
+        green_scat = plt.scatter(f_in_classes[0][i][0], f_in_classes[0][i][5], color='green', label='Training Class 1')
+        red_scat = plt.scatter(f_in_classes[1][i][0],f_in_classes[1][i][5],color='red', label='Training Class 2')
+    #plt.legend(("Class 1", "Class 2"))
+    plt.title("Feature vectors of 1st and 6th dimension plotted in 2D")
+    # plt.show()
+    # plt.close()
+
     # Verificication
     testMinutes = []
     for i in range(36, 48):
         testMinutes.append(i)
     f = LDA.calculate_f(testMinutes, W, filtered_EEG_data)
+    for i in range(int((np.shape(f)[0])/2)):
+        yellow_scat = plt.scatter(f[i][0],f[i][5], color='yellow', label='Test Class 1')
+        orange_scat= plt.scatter(f[i+6][0], f[i+6][5], color='orange', label='Test Class 2')
+    plt.legend(handles=[green_scat, red_scat, yellow_scat, orange_scat])
+    plt.show()
     # classification = []
     D = LDA.calculate_D(v_t,f,b)
     # count = 0
@@ -154,6 +162,8 @@ if __name__ == "__main__":
     print("Case 2: train 12-48, test 0-12")
     attended_ear_2 = np.delete(attended_ear, np.s_[:12], axis=0)
     EEG_data_2 = np.delete(filtered_EEG_data, np.s_[:12], axis=0)
+    print("attendedear2", np.shape(attended_ear_2))
+    print("eegdata2", np.shape(EEG_data_2))
     # CSP training
     grouped_data = AuxiliaryFunctions.group_by_class(EEG_data_2, attended_ear_2)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
@@ -172,17 +182,22 @@ if __name__ == "__main__":
     v_t, b = LDA.calculate_vt_b(inv_cov_mat, mean1, mean2)
     ###plots###
     for i in range(np.shape(f_in_classes)[1]):
-        plt.scatter(f_in_classes[0][i][0], f_in_classes[0][i][5], color='green')
-        plt.scatter(f_in_classes[1][i][0],f_in_classes[1][i][5],color='red')
-    plt.legend(("Class 1", "Class 2"))
-    plt.title("Feature vectors 2D")
-    plt.show()
-    plt.close()
+        green_scat = plt.scatter(f_in_classes[0][i][0], f_in_classes[0][i][5], color='green', label='Training Class 1')
+        red_scat = plt.scatter(f_in_classes[1][i][0],f_in_classes[1][i][5],color='red', label='Training Class 2')
+    #plt.legend(("Class 1", "Class 2"))
+    plt.title("Feature vectors of 1st and 6th dimension plotted in 2D")
+    # plt.show()
+    # plt.close()
     # Verification
     testMinutes = []
     for i in range(0, 12):
         testMinutes.append(i)
     f = LDA.calculate_f(testMinutes, W, filtered_EEG_data)
+    for i in range(int((np.shape(f)[0])/2)):
+        yellow_scat = plt.scatter(f[i][0],f[i][5], color='yellow', label='Test Class 1')
+        orange_scat= plt.scatter(f[i+6][0], f[i+6][5], color='orange', label='Test Class 2')
+    plt.legend(handles=[green_scat, red_scat, yellow_scat, orange_scat])
+    plt.show()
     D = LDA.calculate_D(v_t, f, b)
     classification = LDA.classify(D)
     count = 0
@@ -224,6 +239,8 @@ if __name__ == "__main__":
     print("Case 3: train 0-12+24-48, test 12-24")
     attended_ear_3 = np.delete(attended_ear, np.s_[24:36], axis=0)
     EEG_data_3 = np.delete(filtered_EEG_data, np.s_[24:36], axis=0)
+    print("attendedear3", np.shape(attended_ear_3))
+    print("eegdata3", np.shape(EEG_data_3))
     # CSP training
     grouped_data = AuxiliaryFunctions.group_by_class(EEG_data_3, attended_ear_3)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
@@ -275,6 +292,8 @@ if __name__ == "__main__":
     print("Case 4: train 1-24+34-48, test 24-36")
     attended_ear_4 = np.delete(attended_ear, np.s_[12:24], axis=0)
     EEG_data_4 = np.delete(filtered_EEG_data, np.s_[12:24], axis=0)
+    print("attendedear4", np.shape(attended_ear_4))
+    print("eegdata4", np.shape(EEG_data_4))
     #CSP training
     grouped_data = AuxiliaryFunctions.group_by_class(EEG_data_4, attended_ear_4)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
@@ -323,14 +342,22 @@ if __name__ == "__main__":
 
 
     # Case 5: training 1-36, verification 24-36
-    print("Case 5: train 1-24, test 1-24")
+    print("Case 5: train 1-12, test 12-48")
     attended_ear_5 = np.delete(attended_ear, np.s_[24:48], axis=0)
     EEG_data_5 = np.delete(filtered_EEG_data, np.s_[24:48], axis=0)
+    print("attendedear5", np.shape(attended_ear_5))
+    print("eegdata5", np.shape(EEG_data_5))
     #CSP training
     grouped_data = AuxiliaryFunctions.group_by_class(EEG_data_5, attended_ear_5)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
     spatial_dim = 6
     W = CSP.CSP(class_covariances, spatial_dim)
+    ###plots###
+    for i in range(np.shape(f_in_classes)[1]):
+        green_scat = plt.scatter(f_in_classes[0][i][0], f_in_classes[0][i][5], color='green', label='Training Class 1')
+        red_scat = plt.scatter(f_in_classes[1][i][0],f_in_classes[1][i][5],color='red', label='Training Class 2')
+    #plt.legend(("Class 1", "Class 2"))
+    plt.title("Feature vectors of 1st and 6th dimension plotted in 2D")
     #LDA training
     trainMinutes = []
     for i in range(0, 24):
@@ -347,20 +374,31 @@ if __name__ == "__main__":
     for i in range(0, 24):
         testMinutes.append(i)
     f = LDA.calculate_f(testMinutes, W, filtered_EEG_data)
+    print(np.shape(f))
+    for i in range(6):
+        yellow_scat = plt.scatter(f[i][0],f[i][5], color='yellow', label='Test Class 1')
+        plt.scatter(f[i+ 12][0], f[i+12][5], color='yellow')
+        #plt.scatter(f[i + 24][0], f[i+24][5], color='yellow')
+        orange_scat= plt.scatter(f[i+6][0], f[i+6][5], color='orange', label='Test Class 2')
+        plt.scatter(f[i + 18][0], f[i + 18][5], color='orange', label='Test Class 2')
+        #plt.scatter(f[i + 30][0], f[i + 30][5], color='orange', label='Test Class 2')
+
+    plt.legend(handles=[green_scat, red_scat, yellow_scat, orange_scat])
+    plt.show()
     D = LDA.calculate_D(v_t, f, b)
     classification = LDA.classify(D)
     count = 0
     xas = []
     for i in range(24):
         xas.append(i + 1)
-        if attended_ear[i] != classification[i]:
+        if attended_ear[i+24] != classification[i]:
             count += 1
     print((100 - (count * 100 / 24)), "%")
     plt.figure("Classification")
     plt.scatter(xas, classification)
     plt.figure("D(f)")
     plt.scatter(xas, D)
-    plt.plot([1,24], [0,0], 'r--')
+    plt.plot([0,24], [0,0], 'r--')
     plt.show()
     plt.close()
     # count = 0

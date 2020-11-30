@@ -11,7 +11,6 @@ def unwrap_cell_data(cell_data):
 
 # A helper function to compute covariance matrices
 def covariance_matrix(A):
-    #return np.dot(A, np.transpose(A)) / np.trace(np.dot(A, np.trace(A)))
     return np.cov(A)
 
 

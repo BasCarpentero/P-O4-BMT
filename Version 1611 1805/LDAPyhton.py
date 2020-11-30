@@ -2,7 +2,7 @@ import numpy as np
 import sklearn
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDApython
 
-from scipy.fft import fft, fftfreq
+from scipy.fftpack import fft, fftfreq
 from scipy.signal import freqz
 from scipy.io import loadmat
 import scipy.fftpack
@@ -46,19 +46,19 @@ if __name__ == "__main__":
         filtered_EEG_data.append(y)
     filtered_EEG_data = np.array(filtered_EEG_data)
 
-    plt.figure(4)
-    channel = 0
-    EEG_data_plot = np.transpose(filtered_EEG_data[0])
-    while channel < 24 :
-        EEG_data_plot[channel]= np.add(EEG_data_plot[channel], np.full((7100,), channel*(-100)))
-        channel += 1
-    plt.plot(EEG_data_plot.T, label='Filtered signal')
-    plt.xlabel('time (samples per seconds)')
-    #plt.hlines([-a, a], 0, T, linestyles='--')
-    plt.grid(True)
-    plt.axis('tight')
-    #plt.savefig('pythonfilterOrde8')
-    plt.show()
+    # plt.figure(4)
+    # channel = 0
+    # EEG_data_plot = np.transpose(filtered_EEG_data[0])
+    # while channel < 24 :
+    #     EEG_data_plot[channel]= np.add(EEG_data_plot[channel], np.full((7100,), channel*(-100)))
+    #     channel += 1
+    # plt.plot(EEG_data_plot.T, label='Filtered signal')
+    # plt.xlabel('time (samples per seconds)')
+    # #plt.hlines([-a, a], 0, T, linestyles='--')
+    # plt.grid(True)
+    # plt.axis('tight')
+    # #plt.savefig('pythonfilterOrde8')
+    # plt.show()
 
 
 
@@ -66,6 +66,7 @@ if __name__ == "__main__":
     print("Case 1: train 1-36, test 36-48")
     attended_ear_1 = np.delete(attended_ear, np.s_[36:48], axis=0)
     EEG_data_1 = np.delete(filtered_EEG_data, np.s_[36:48], axis=0)
+    print()
     # CSP training
     grouped_data = AuxiliaryFunctions.group_by_class(EEG_data_1, attended_ear_1)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
