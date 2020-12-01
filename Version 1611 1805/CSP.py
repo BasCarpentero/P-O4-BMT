@@ -32,5 +32,5 @@ def CSP(class_covariances, size):
     eigenvectors = eigenvectors[:, descending_eigenvalues]
     eigenvectorsbegin = np.array(eigenvectors[:, :int(size/2)])
     eigenvectorseinde = np.array(eigenvectors[:, int(np.shape(eigenvectors)[1]-size/2):])
-    eigenvectors = np.concatenate((eigenvectorsbegin, eigenvectorseinde), axis = 1)
+    eigenvectors = np.concatenate((eigenvectorsbegin, eigenvectorseinde), axis=1)
     return eigenvectors
