@@ -24,4 +24,4 @@ def group_by_class(samples, sample_classes):
             class_one.append(np.transpose(samples[i]))
         else:
             class_two.append(np.transpose(samples[i]))
-    return np.array([class_one, class_two])#, dtype=object)
+    return np.array([class_one, class_two])
