@@ -26,11 +26,9 @@ def CSP(class_covariances, size):
     # Solve the generalized eigenvalue problem resulting in eigenvalues and corresponding eigenvectors and
     # sort them in descending order.
     eigenvalues, eigenvectors = la.eigh(class_covariances[0], class_covariances[1])
-    ascending_eigenvalues = np.argsort(eigenvalues)
-    descending_eigenvalues = ascending_eigenvalues[::-1]
-    eigenvalues = eigenvalues[descending_eigenvalues]
-    eigenvectors = eigenvectors[:, descending_eigenvalues]
-    eigenvectorsbegin = np.array(eigenvectors[:, :int(size/2)])
-    eigenvectorseinde = np.array(eigenvectors[:, int(np.shape(eigenvectors)[1]-size/2):])
-    eigenvectors = np.concatenate((eigenvectorsbegin, eigenvectorseinde), axis=1)
+    id_descending = np.argsort(eigenvalues)[::-1]
+    eigenvectors = eigenvectors[:, id_descending]
+    eigenvectors_begin = np.array(eigenvectors[:, :int(size/2)])
+    eigenvectors_end = np.array(eigenvectors[:, int(np.shape(eigenvectors)[1]-size/2):])
+    eigenvectors = np.concatenate((eigenvectors_begin, eigenvectors_end), axis=1)
     return eigenvectors
