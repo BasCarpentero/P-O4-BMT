@@ -21,120 +21,129 @@ import LDA
 
 if __name__ == "__main__":
 
-    # Load the given Matlab data.
-    data = loadmat('dataSubject8.mat')
-
-    # Data detailing which sample attends to which ear.
-    wrapped_attended_ear = np.array(data.get('attendedEar'))
-    attended_ear = AuxiliaryFunctions.unwrap_cell_data(wrapped_attended_ear)
-    print('attended_ear is the following list of length ' +
-          str(len(attended_ear)) + ' : ' + str(attended_ear) + '.')
-    # plt.figure(1)
-    # plt.plot(attended_ear, 'rx')
-    # plt.xlabel('Sample number')
-    # plt.ylabel('Group')
-
-    # EEG measured data.
-    wrapped_EEG_data = np.array(data.get('eegTrials'))
-    EEG_data = AuxiliaryFunctions.unwrap_cell_data(wrapped_EEG_data)
-    # print('EEG_data is a list of length ' + str(len(EEG_data)) +
-    #       ' containing 24 channels and 7200 data points per minute.')
-    # plt.figure("EEG data unfiltered")
-    # plt.plot(EEG_data[0])
-    # plt.xlabel('Time samples minute one')
-    # plt.ylabel('Voltage')
-    # plt.show()
-
-    # Calculate a Butterworth bandpass filter for the given parameters.
-    fs = int(data.get('fs'))
-    low_cut = 12.0
-    high_cut = 30.0
-    # plt.figure("Butterworth bandpass filters")
-    # plt.clf()
-    # for order in [3, 6, 9]:
-    #      b, a = Filter.butter_bandpass(low_cut, high_cut, fs, order=order)
-    #      w, h = freqz(b, a, worN=2000)
-    #     plt.plot((fs * 0.5 / np.pi) * w, abs(h), label="order = %d" % order)
-    # plt.plot([0, 0.5 * fs], [np.sqrt(0.5), np.sqrt(0.5)],
-    # plt.xlabel('Frequency (Hz)')
-    # plt.ylabel('Gain')
-    # plt.grid(True)
-    # plt.legend(loc='best')
-    filtered_EEG_data = []
-    for minute in EEG_data:
-        minute = np.transpose(minute) # rows = 24 channels , columns = 7200 time instances
-        y = Filter.butter_bandpass_filter(minute, low_cut, high_cut, fs, order=8)
-        y = np.transpose(y)
-        y = y[100:]
-        filtered_EEG_data.append(y)
-    # plt.figure("EEG data filtered (after cut-off)")
-    # channel = 0
-    # EEG_data_plot = np.transpose(filtered_EEG_data[0])
-    # while channel < 24 :
-    #     EEG_data_plot[channel]= np.add(EEG_data_plot[channel], np.full((7100,), channel*(-100)))
-    #     channel += 1
-    # plt.plot(EEG_data_plot.T, label='Filtered signal')
-    # plt.xlabel('time (samples per seconds)')
-    # #plt.hlines([-a, a], 0, T, linestyles='--')
-    # plt.grid(True)
-    # plt.axis('tight')
-    # #plt.savefig('pythonfilterOrde8')
-    # plt.show()
-
-
-    accuracies = []
     test_size_percentage = 0.25
     testsize = int(test_size_percentage * 48)
     print("testsize", testsize)
     print("trainsize", int(48 - testsize))
-    for i in range(3):
-        # Using the sklearn train_test_split library to randomly divide the data into a
-        # training and test set for cross validation.
-        # The function requires the parameters (data, verification data, # verication samples / # data samples)
-        print("################## TEST ", int(i+1) , "####################")
-        training_data, test_data, training_attended_ear, test_attended_ear = train_test_split(filtered_EEG_data,
-                                                                                              attended_ear, test_size=test_size_percentage)
-        grouped_data = AuxiliaryFunctions.group_by_class(training_data, training_attended_ear)
-        class_covariances = CSP.spatial_covariance_matrices(grouped_data)
-        spatial_dim = 6
-        W = CSP.CSP(class_covariances, spatial_dim)
 
-        # LDA training
-        training_linspace = []
-        for i in range(0, len(training_data)):
-            training_linspace.append(i)
-        # The training data variable here was originally the full EEG_Data variable???
-        f = LDA.calculate_f(training_linspace, W, training_data)
-        cov_mat = AuxiliaryFunctions.covariance_matrix(np.transpose(f))
-        inv_cov_mat = np.linalg.inv(cov_mat)
-        f_in_classes = AuxiliaryFunctions.group_by_class(f, training_attended_ear)
-        mean1 = LDA.calculate_mean(np.array(f_in_classes[0]))
-        mean2 = LDA.calculate_mean(np.array(f_in_classes[1]))
-        v_t, b = LDA.calculate_vt_b(inv_cov_mat, mean1, mean2)
+    for i in range(12):
+        # Load the given Matlab data.
+        bestand = 'dataSubject' + str(int(i+1)) + '.mat'
+        print('----------------- DATA SUBJECT '+str(int(i+1))+' --------------------')
+        data = loadmat(bestand)
 
-        test_linspace = []
-        for i in range(0, len(test_data)):
-            test_linspace.append(i)
-        f = LDA.calculate_f(test_linspace, W, test_data)
-        D = LDA.calculate_D(v_t,f,b)
-        classification = LDA.classify(D)
-        count = 0
-        for i in range(int(testsize)):
-            # xas.append(i+1)
-            if test_attended_ear[i] != classification[i]:
-                count += 1
-        accuracy = (100 - (count * 100 / testsize))
-        accuracies.append(accuracy)
-        print(accuracy, "%")
-        #xas = []
-        # for i in range(12):
-        #     #xas.append(i+1)
-        #     if test_attended_ear[i] != classification[i]:
-        #         count += 1
-        # print((100 - (count * 100 / 12)), "%")
+        # Data detailing which sample attends to which ear.
+        wrapped_attended_ear = np.array(data.get('attendedEar'))
+        attended_ear = AuxiliaryFunctions.unwrap_cell_data(wrapped_attended_ear)
+        #print('attended_ear is the following list of length ' +
+         #     str(len(attended_ear)) + ' : ' + str(attended_ear) + '.')
+        # plt.figure(1)
+        # plt.plot(attended_ear, 'rx')
+        # plt.xlabel('Sample number')
+        # plt.ylabel('Group')
 
-    average = np.mean(accuracies)
-    print(average)
+        # EEG measured data.
+        wrapped_EEG_data = np.array(data.get('eegTrials'))
+        EEG_data = AuxiliaryFunctions.unwrap_cell_data(wrapped_EEG_data)
+        # print('EEG_data is a list of length ' + str(len(EEG_data)) +
+        #       ' containing 24 channels and 7200 data points per minute.')
+        # plt.figure("EEG data unfiltered")
+        # plt.plot(EEG_data[0])
+        # plt.xlabel('Time samples minute one')
+        # plt.ylabel('Voltage')
+        # plt.show()
+
+        # Calculate a Butterworth bandpass filter for the given parameters.
+        fs = int(data.get('fs'))
+        low_cut = 12.0
+        high_cut = 30.0
+        # plt.figure("Butterworth bandpass filters")
+        # plt.clf()
+        # for order in [3, 6, 9]:
+        #      b, a = Filter.butter_bandpass(low_cut, high_cut, fs, order=order)
+        #      w, h = freqz(b, a, worN=2000)
+        #     plt.plot((fs * 0.5 / np.pi) * w, abs(h), label="order = %d" % order)
+        # plt.plot([0, 0.5 * fs], [np.sqrt(0.5), np.sqrt(0.5)],
+        # plt.xlabel('Frequency (Hz)')
+        # plt.ylabel('Gain')
+        # plt.grid(True)
+        # plt.legend(loc='best')
+        filtered_EEG_data = []
+        for minute in EEG_data:
+            minute = np.transpose(minute) # rows = 24 channels , columns = 7200 time instances
+            y = Filter.butter_bandpass_filter(minute, low_cut, high_cut, fs, order=8)
+            y = np.transpose(y)
+            y = y[100:]
+            filtered_EEG_data.append(y)
+        # plt.figure("EEG data filtered (after cut-off)")
+        # channel = 0
+        # EEG_data_plot = np.transpose(filtered_EEG_data[0])
+        # while channel < 24 :
+        #     EEG_data_plot[channel]= np.add(EEG_data_plot[channel], np.full((7100,), channel*(-100)))
+        #     channel += 1
+        # plt.plot(EEG_data_plot.T, label='Filtered signal')
+        # plt.xlabel('time (samples per seconds)')
+        # #plt.hlines([-a, a], 0, T, linestyles='--')
+        # plt.grid(True)
+        # plt.axis('tight')
+        # #plt.savefig('pythonfilterOrde8')
+        # plt.show()
+
+
+        accuracies = []
+        test_size_percentage = 0.25
+        testsize = int(test_size_percentage * 48)
+        # print("testsize", testsize)
+        # print("trainsize", int(48 - testsize))
+        for i in range(10):
+            # Using the sklearn train_test_split library to randomly divide the data into a
+            # training and test set for cross validation.
+            # The function requires the parameters (data, verification data, # verication samples / # data samples)
+
+            #print("################## TEST ", int(i+1) , "####################")
+            training_data, test_data, training_attended_ear, test_attended_ear = train_test_split(filtered_EEG_data,
+                                                                                                  attended_ear, test_size=test_size_percentage)
+            grouped_data = AuxiliaryFunctions.group_by_class(training_data, training_attended_ear)
+            class_covariances = CSP.spatial_covariance_matrices(grouped_data)
+            spatial_dim = 6
+            W = CSP.CSP(class_covariances, spatial_dim)
+
+            # LDA training
+            training_linspace = []
+            for i in range(0, len(training_data)):
+                training_linspace.append(i)
+            # The training data variable here was originally the full EEG_Data variable???
+            f = LDA.calculate_f(training_linspace, W, training_data)
+            cov_mat = AuxiliaryFunctions.covariance_matrix(np.transpose(f))
+            inv_cov_mat = np.linalg.inv(cov_mat)
+            f_in_classes = AuxiliaryFunctions.group_by_class(f, training_attended_ear)
+            mean1 = LDA.calculate_mean(np.array(f_in_classes[0]))
+            mean2 = LDA.calculate_mean(np.array(f_in_classes[1]))
+            v_t, b = LDA.calculate_vt_b(inv_cov_mat, mean1, mean2)
+
+            test_linspace = []
+            for i in range(0, len(test_data)):
+                test_linspace.append(i)
+            f = LDA.calculate_f(test_linspace, W, test_data)
+            D = LDA.calculate_D(v_t,f,b)
+            classification = LDA.classify(D)
+            count = 0
+            for i in range(int(testsize)):
+                # xas.append(i+1)
+                if test_attended_ear[i] != classification[i]:
+                    count += 1
+            accuracy = (100 - (count * 100 / testsize))
+            accuracies.append(accuracy)
+            #print(accuracy, "%")
+            #xas = []
+            # for i in range(12):
+            #     #xas.append(i+1)
+            #     if test_attended_ear[i] != classification[i]:
+            #         count += 1
+            # print((100 - (count * 100 / 12)), "%")
+
+        average = np.mean(accuracies)
+        print(average, "%")
 
 
     '''
