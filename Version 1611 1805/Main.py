@@ -87,16 +87,24 @@ if __name__ == "__main__":
     
     
     
+
     
-    
-    
+
     
     # Using the sklearn train_test_split library to randomly divide the data into a
     # training and test set for cross validation.
     # The function requires the parameters (data, verification data, # verication samples / # data samples)
-    training_data, training_attendees, test_data, test_attendees = train_test_split(filtered_EEG_data, attended_ear,test_size=0.2)
-    class_covariances = CSP.spatial_covariance_matrices(AuxiliaryFunctions.group_by_class(training_data, training_attendees))
-    W = CSP.CSP(class_covariances, spatial_dim=6)
+    training_data, test_data, training_attended_ear, test_attended_ear = train_test_split(filtered_EEG_data, attended_ear,test_size=0.25)
+    print("shape training data", np.shape(training_data))
+    print("shape training data", np.shape(training_attended_ear))
+    print("shape testing data", np.shape(test_data))
+    print("shape testing ear", np.shape(test_attended_ear))
+    grouped_data = AuxiliaryFunctions.group_by_class(training_data, training_attended_ear)
+    class_covariances = CSP.spatial_covariance_matrices(grouped_data)
+    spatial_dim = 6
+    W = CSP.CSP(class_covariances, spatial_dim)
+    # class_covariances = CSP.spatial_covariance_matrices(AuxiliaryFunctions.group_by_class(training_data, training_attended_ear))
+    # W = CSP.CSP(class_covariances, spatial_dim=6)
 
     # LDA training
     training_linspace = []
@@ -106,7 +114,7 @@ if __name__ == "__main__":
     f = LDA.calculate_f(training_linspace, W, training_data)
     cov_mat = AuxiliaryFunctions.covariance_matrix(np.transpose(f))
     inv_cov_mat = np.linalg.inv(cov_mat)
-    f_in_classes = AuxiliaryFunctions.group_by_class(f, training_attendees)
+    f_in_classes = AuxiliaryFunctions.group_by_class(f, training_attended_ear)
     mean1 = LDA.calculate_mean(np.array(f_in_classes[0]))
     mean2 = LDA.calculate_mean(np.array(f_in_classes[1]))
     v_t, b = LDA.calculate_vt_b(inv_cov_mat, mean1, mean2)
@@ -118,9 +126,9 @@ if __name__ == "__main__":
     D = LDA.calculate_D(v_t,f,b)
     classification = LDA.classify(D)
     count = 0
-    xas = []
+    #xas = []
     for i in range(12):
-        xas.append(i+1)
+        #xas.append(i+1)
         if test_data[i] != classification[i]:
             count += 1
     print((100 - (count * 100 / 12)), "%")
@@ -129,13 +137,15 @@ if __name__ == "__main__":
     
     
     
-    
+    '''
     
 
     # Case 1: training 1-36, verification 36-48
     print("Case 1: train 1-36, test 36-48")
     attended_ear_1 = np.delete(attended_ear, np.s_[36:48], axis=0)
     EEG_data_1 = np.delete(filtered_EEG_data, np.s_[36:48], axis=0)
+    print("shape attended ear", np.shape(attended_ear_1))
+    print("shape EEG data", np.shape(EEG_data_1))
     # CSP training
     grouped_data = AuxiliaryFunctions.group_by_class(EEG_data_1, attended_ear_1)
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
@@ -453,3 +463,5 @@ if __name__ == "__main__":
     #     if attended_ear[i] != LDA.classify(v_t, b, f[i]):
     #         count += 1
     # print((100 - (count * 100 / 24)), "%")  # Aantal verkeerd voorspelde minuten (veel te hoog!!)
+
+'''
