@@ -129,7 +129,7 @@ if __name__ == "__main__":
     #xas = []
     for i in range(12):
         #xas.append(i+1)
-        if test_data[i] != classification[i]:
+        if test_attended_ear[i] != classification[i]:
             count += 1
     print((100 - (count * 100 / 12)), "%")
     
