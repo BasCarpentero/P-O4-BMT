@@ -30,4 +30,10 @@
     </task>
     <servers />
   </component>
+  <component name="WindowStateProjectService">
+    <state x="371" y="88" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1607347757168">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="371" y="88" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1280.680@0.0.1280.680" timestamp="1607347757168" />
+  </component>
 </project>
