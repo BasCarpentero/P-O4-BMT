@@ -22,7 +22,6 @@ import LDA
 if __name__ == "__main__":
 
     # Load the given Matlab data.
-    #data = loadmat('/Users/ogppr/Documents/dataSubject8.mat')
     data = loadmat('dataSubject8.mat')
 
     # Data detailing which sample attends to which ear.
@@ -45,7 +44,6 @@ if __name__ == "__main__":
     # plt.xlabel('Time samples minute one')
     # plt.ylabel('Voltage')
     # plt.show()
-
 
     # Calculate a Butterworth bandpass filter for the given parameters.
     fs = int(data.get('fs'))
@@ -83,14 +81,6 @@ if __name__ == "__main__":
     # #plt.savefig('pythonfilterOrde8')
     # plt.show()
 
-    
-    
-    
-    
-
-    
-
-    
     # Using the sklearn train_test_split library to randomly divide the data into a
     # training and test set for cross validation.
     # The function requires the parameters (data, verification data, # verication samples / # data samples)
