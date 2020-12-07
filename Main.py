@@ -35,8 +35,8 @@ if __name__ == "__main__":
         # Data detailing which sample attends to which ear.
         wrapped_attended_ear = np.array(data.get('attendedEar'))
         attended_ear = AuxiliaryFunctions.unwrap_cell_data(wrapped_attended_ear)
-        #print('attended_ear is the following list of length ' +
-         #     str(len(attended_ear)) + ' : ' + str(attended_ear) + '.')
+        # print('attended_ear is the following list of length ' +
+        #       str(len(attended_ear)) + ' : ' + str(attended_ear) + '.')
         # plt.figure(1)
         # plt.plot(attended_ear, 'rx')
         # plt.xlabel('Sample number')
@@ -100,7 +100,7 @@ if __name__ == "__main__":
             # training and test set for cross validation.
             # The function requires the parameters (data, verification data, # verication samples / # data samples)
 
-            #print("################## TEST ", int(i+1) , "####################")
+            # print("################## TEST ", int(i+1) , "####################")
             training_data, test_data, training_attended_ear, test_attended_ear = train_test_split(filtered_EEG_data,
                                                                                                   attended_ear, test_size=test_size_percentage)
             grouped_data = AuxiliaryFunctions.group_by_class(training_data, training_attended_ear)
@@ -134,8 +134,8 @@ if __name__ == "__main__":
                     count += 1
             accuracy = (100 - (count * 100 / testsize))
             accuracies.append(accuracy)
-            #print(accuracy, "%")
-            #xas = []
+            # print(accuracy, "%")
+            # xas = []
             # for i in range(12):
             #     #xas.append(i+1)
             #     if test_attended_ear[i] != classification[i]:
