@@ -232,6 +232,7 @@ if __name__ == "__main__":
     class_covariances = CSP.spatial_covariance_matrices(grouped_data)
     spatial_dim = 6
     W = CSP.CSP(class_covariances, spatial_dim)
+    
     # LDA training
     trainMinutes = []
     for i in range(12, 48):
@@ -243,6 +244,7 @@ if __name__ == "__main__":
     mean1 = LDA.calculate_mean(np.array(f_in_classes[0]))
     mean2 = LDA.calculate_mean(np.array(f_in_classes[1]))
     v_t, b = LDA.calculate_vt_b(inv_cov_mat, mean1, mean2)
+    
     ###plots###
     for i in range(np.shape(f_in_classes)[1]):
         green_scat = plt.scatter(f_in_classes[0][i][0], f_in_classes[0][i][5], color='green', label='Training Class 1')
@@ -251,6 +253,7 @@ if __name__ == "__main__":
     plt.title("Feature vectors of 1st and 6th dimension plotted in 2D")
     # plt.show()
     # plt.close()
+    
     # Verification
     testMinutes = []
     for i in range(0, 12):

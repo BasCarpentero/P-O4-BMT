@@ -29,7 +29,7 @@ def logenergy(y):
 def calculate_f(testMinutes, W, x):
     f = []
     for i in testMinutes:
-        # x is a C x A matrix with C = #channels and A = #time instances
+        # x[i] is a C x A matrix with C = #channels 24 and A = #time instances 7200
         # W is a C x K matrix with C = #channels and K = # spatial filters
         # T is the decisionwindow
         y = np.dot(np.transpose(W), np.transpose(x[i]))
