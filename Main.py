@@ -89,7 +89,6 @@ if __name__ == "__main__":
         # #plt.savefig('pythonfilterOrde8')
         # plt.show()
 
-
         accuracies = []
         test_size_percentage = 0.25
         testsize = int(test_size_percentage * 48)
@@ -104,7 +103,7 @@ if __name__ == "__main__":
             training_data, test_data, training_attended_ear, test_attended_ear = train_test_split(filtered_EEG_data,
                                                                                                   attended_ear, test_size=test_size_percentage)
             grouped_data = AuxiliaryFunctions.group_by_class(training_data, training_attended_ear)
-            class_covariances = CSP.spatial_covariance_matrices(grouped_data)
+            class_covariances = CSP.spatial_covariance_matrices(grouped_data, 'lwcov')
             spatial_dim = 6
             W = CSP.CSP(class_covariances, spatial_dim)
 
@@ -114,7 +113,7 @@ if __name__ == "__main__":
                 training_linspace.append(i)
             # The training data variable here was originally the full EEG_Data variable???
             f = LDA.calculate_f(training_linspace, W, training_data)
-            cov_mat = AuxiliaryFunctions.covariance_matrix(np.transpose(f))
+            cov_mat = AuxiliaryFunctions.covariance_matrix(np.transpose(f), 'lwcov')
             inv_cov_mat = np.linalg.inv(cov_mat)
             f_in_classes = AuxiliaryFunctions.group_by_class(f, training_attended_ear)
             mean1 = LDA.calculate_mean(np.array(f_in_classes[0]))

@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn import covariance
 
 
 # Modifies the given data, getting rid of Matlab's cell structures.
@@ -7,11 +8,6 @@ def unwrap_cell_data(cell_data):
     for x in cell_data:
         unwrapped_data.append(x[0])
     return unwrapped_data
-
-
-# A helper function to compute covariance matrices
-def covariance_matrix(A):
-    return np.cov(A)
 
 
 # A helper function to classify given samples into their classes, returns a dictionary with keys 'class_x' and a list
@@ -27,6 +23,33 @@ def group_by_class(samples, sample_classes):
     return np.array([class_one, class_two])
 
 def lwcov(X):
+    nobs, nvar = X.shape[0], X.shape[1]
+    X = X-np.average(X, axis=0)
+    S = (1/(nobs-1))*np.matmul(np.transpose(X), X)
+    #S = (S + np.transpose(S)) / 2
+    m = np.trace(S)/nvar
+    d2 = np.square(np.linalg.norm(S-m*np.eye(nvar)))/nvar
+    rownorms = np.sum(np.square(X), axis=1)
+    term11 = np.matmul(np.transpose(X), np.transpose(np.multiply(np.transpose(X), rownorms)))
+    term12 = -2*np.matmul(S, (np.matmul(np.transpose(X), X)))
+    term22 = nobs*np.matmul(S, np.transpose(S))
+    b2 = np.trace(term11+term12+term22)/((nvar*nobs)^2)
+    a2 = d2 - b2
+    Sr = b2/d2 * m * np.eye(nvar) + a2/d2*S
+
+    return Sr
+
+# A helper function to compute covariance matrices
+def covariance_matrix(A, option='lwcov'):
+    if option == 'lwcov':
+        return covariance.ledoit_wolf(np.transpose(A))[0]
+        #return lwcov(np.transpose(A))
+
+    elif option == 'classic':
+        return np.cov(A)
+
+'''
+def lwcov(X):
     nobs,nvar = X.shape[0],X.shape[1]
     X = X-np.average(X,axis=0)
     S = (1/(nobs-1))*np.matmul(np.transpose(X),X)
@@ -41,3 +64,4 @@ def lwcov(X):
     Sr = b2/d2 *m *np.eye(nvar)+a2/d2*S
 
     return Sr
+'''

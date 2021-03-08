@@ -8,15 +8,15 @@ import scipy.linalg as la
 import AuxiliaryFunctions
 
 # A helper function to compute composite covariance matrices given a list of classes.
-def spatial_covariance_matrices(grouped_data):
+def spatial_covariance_matrices(grouped_data, option='lwcov'): #option = 'lwcov or classic'
     result = []
     for group in grouped_data:
         # Initialize an empty matrix.
-        spatial_covariance = AuxiliaryFunctions.covariance_matrix(group[0]) * 0
+        spatial_covariance = AuxiliaryFunctions.covariance_matrix(group[0], 'classic') * 0
         count = 0
         for sample in group:
             count += 1
-            spatial_covariance += AuxiliaryFunctions.covariance_matrix(sample)
+            spatial_covariance += AuxiliaryFunctions.covariance_matrix(sample, option)
         result.append(spatial_covariance / count)
     return result
 
